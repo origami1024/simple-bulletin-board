@@ -11,7 +11,7 @@ var express = require('express')
 var app = express();
 
 var http = require('http')
-var server = http.server(app)
+var server = http.Server(app)
 
 app.use(express.static('client'))
 
