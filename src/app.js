@@ -18,7 +18,9 @@ app.use(express.static('client'))
 server.listen(PORT, function() {
     console.log('server running')
 })
-
+server.on("connection", function(){
+    console.log("somon jonid")
+})
 var io = require('socket.io')(server)
 
 io.on('connection', function(socket) {
