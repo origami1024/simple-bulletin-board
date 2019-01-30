@@ -9,17 +9,20 @@ app.listen(port);
 PORT = 8000;
 var express = require('express')
 var app = express();
+var path = require('path');
 
-var http = require('http')
-var server = http.Server(app)
+//var http = require('http')
+//var server = http.Server(app)
 
-app.use(express.static('client'))
+//app.use(express.static('client'))
 
 app.get('/', function(req, res) {
-    res.sendFile('../dist/index.html');
+    console.log('PURF ' + path)
+    
+    res.sendFile(path.join(__dirname, '/../dist/index.html'));
 });
 
-server.listen(PORT, function() {
+/*//server.listen(PORT, function() {
     console.log('server running')
 })
 server.on("connection", function(){
@@ -33,5 +36,5 @@ io.on('connection', function(socket) {
         io.emit('message', msg)
     })
 })
-
+*/
 //document.writeln("jojo")
