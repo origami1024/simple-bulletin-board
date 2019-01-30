@@ -22,6 +22,7 @@ server.listen(PORT, function() {
 var io = require('socket.io')(server)
 
 io.on('connection', function(socket) {
+    console.log('conn')
     socket.on('message', function(msg){
         io.emit('message', msg)
     })
