@@ -22,19 +22,4 @@ app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/../dist/index.html'));
 });
 
-/*//server.listen(PORT, function() {
-    console.log('server running')
-})
-server.on("connection", function(){
-    console.log("somon jonid")
-})
-var io = require('socket.io')(server)
-
-io.on('connection', function(socket) {
-    console.log('conn')
-    socket.on('message', function(msg){
-        io.emit('message', msg)
-    })
-})
-*/
-//document.writeln("jojo")
+app.listen(PORT);
