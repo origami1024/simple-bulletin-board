@@ -6,7 +6,7 @@ if (port == null || port == "") {
 app.listen(port);
 
 */
-port = 8000;
+PORT = 8000;
 var express = require('express')
 var app = express();
 
