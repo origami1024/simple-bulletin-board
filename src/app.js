@@ -6,7 +6,7 @@ if (port == null || port == "") {
 app.listen(port);
 
 */
-PORT = 5000;
+PORT = 8000;
 var express = require('express')
 var app = express();
 
@@ -14,6 +14,10 @@ var http = require('http')
 var server = http.Server(app)
 
 app.use(express.static('client'))
+
+app.get('/', function(req, res) {
+    res.sendFile('../dist/index.html');
+});
 
 server.listen(PORT, function() {
     console.log('server running')
