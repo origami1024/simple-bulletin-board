@@ -22,5 +22,10 @@ app.get('/', function(req, res) {
     
     res.sendFile(path.join(__dirname, '/../dist/index.html'));
 });
+app.get('/assets/moon.png', function(req, res) {
+  console.log('moono ' + path.join(__dirname, '/../dist/assets/moon.png'))
+  
+  res.sendFile(path.join(__dirname, '/../dist/assets/moon.png'));
+});
 
 app.listen(PORT);

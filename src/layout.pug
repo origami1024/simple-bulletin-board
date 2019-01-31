@@ -1,10 +1,13 @@
 doctype html
-html
+html(language=en)
     head
         title heyo there, is the title
+        block externals
+            include includes/externals
     body
         block header
             include includes/header
         block content
         block footer
+            include includes/footer
         script(src="somescript.js")
