@@ -1,21 +1,39 @@
 /*
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 8000;
-}
-app.listen(port);
-
+NOTICE BOARD
+  USER AUTH
+  CREATING AND VIEWING NOTICES/ADS
+  COUNT THE HITS
+  POSTGRESQL
 */
-//PORT = 8000;
 PORT = process.env.PORT || 8000;
-var express = require('express')
-var app = express();
-var path = require('path');
 
-//var http = require('http')
-//var server = http.Server(app)
+const express = require('express')
+const app = express();
+const path = require('path');
+const { Pool, Client } = require('pg')
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/postgres'
+let sslTmp = false
+if (connectionString != 'postgres://postgres:1234@localhost:5432/postgres'){
+  sslTmp = true
+  console.log('IS TRUE')
+}
+const pool = new Pool({
+  connectionString: connectionString,
+  ssl: sslTmp //this shud be true
+})
 
-//app.use(express.static('client'))
+function getNoticesAfterId(afterAdId) {
+  resu = ''
+  pool.query('SELECT * FROM notices')
+  .then(res => {
+    console.log(res.rows)
+    resu = 'peperoni'
+  })
+  .catch(e => console.error(e.stack))
+
+  return resu
+}
+
 
 app.get('/', function(req, res) {
     console.log('PURF ' + path)
@@ -27,5 +45,39 @@ app.get('/assets/moon.png', function(req, res) {
   
   res.sendFile(path.join(__dirname, '/../dist/assets/moon.png'));
 });
+app.get('/scripts/main1.js', function(req, res) {
+  console.log('js asked ' + __dirname)
+  
+  res.sendFile(path.join(__dirname, '/../dist/scripts/main1.js'));
+});
+
+
+//refresh procedure!
+//////////////////
+app.get('/refresh.bat', function(req, res) {
+  console.log('REFRESH ASKED! ', req.query.i)
+  pool.query('SELECT * FROM notices where ad_id>' + req.query.i)
+  .then(res1 => {
+    res.send(res1.rows)
+  })
+  .catch(e => console.error(e.stack))
+
+});
+/////////////////
+
+//add new procedure!
+///////////////////
+app.get('/new.bat', function(req, res) {
+  console.log('add a ad:', req.query)
+  let que = `INSERT INTO notices(author_id, title, text, contacts, hits) 
+  VALUES(10001, $1, $2, $3, 0 )`
+  let values = [req.query.title, req.query.text, req.query.cont]
+  console.log('que generated', que)
+  pool.query(que, values)
+
+  
+});
+
+//////////////////
 
 app.listen(PORT);

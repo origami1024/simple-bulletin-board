@@ -7,17 +7,17 @@ div(class="py-3 rounded modal fade" role="dialog" tabindex="-1" id="myModal")
                     span(class="text-white") &times;
             form(id="theForm")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
-                    label(for="msgInp" class="mb-0 pl-2 text-white") Title
-                    input(type="text" class="form-control form-control-sm" id="nameInp" required pattern=".{3,}" placeholder="Ad title" title="3 characters minimum")
+                    label(for="titleInp" class="mb-0 pl-2 text-white") Title
+                    input(type="text" class="form-control form-control-sm" id="titleInp" required pattern=".{3,}" placeholder="Ad title" title="3 characters minimum")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
-                    label(for="msgInp" class="mb-0 pl-2 text-white") Picture
-                    input(type="text" class="form-control form-control-sm" id="nameInp" required pattern=".{3,}" placeholder="pic" title="3 characters minimum")
+                    label(for="picInp" class="mb-0 pl-2 text-white") Picture
+                    input(type="text" class="form-control form-control-sm" id="picInp" required pattern=".{3,}" placeholder="pic" title="3 characters minimum")
                 div(class="form-group mb-0 d-flex flex-column mt-1 mt-sm-3")
-                    label(for="msgInp" class="mb-0 pl-2 order-2 order-sm-1 text-white") Ad description
-                    textarea(class="form-control form-control-sm order-3 order-sm-2" id="msgInp" required minlength="15" placeholder="Description")
+                    label(for="textInp" class="mb-0 pl-2 order-2 order-sm-1 text-white") Ad description
+                    textarea(class="form-control form-control-sm order-3 order-sm-2" id="textInp" required minlength="15" placeholder="Description")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
-                    label(for="msgInp" class="mb-0 pl-2 text-white") Contacts//pick from info in profile
-                    input(type="text" class="form-control form-control-sm" id="nameInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
+                    label(for="contactsInp" class="mb-0 pl-2 text-white") Contacts//pick from info in profile
+                    input(type="text" class="form-control form-control-sm" id="contactsInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
                 div(class="input-group mt-0 mb-1 mb-sm-0 mt-sm-3 col-12 col-sm-4 order-1 order-sm-3 p-0")
                     button(type="submit" class="btn btn-dark border btn-block" id="subm") send
                         i(class="fa fa-paper-plane" aria-hidden="true")

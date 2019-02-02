@@ -1,21 +1,7 @@
 extends layout
 
 block content
-    section(class = "view border p-3")
-        div(class = "row m-3")
-            div(class = "noticeCard col-3 border p-2 text-center" data-toggle="modal" data-target="#oldModal")
-                img(src="assets/moon.png" class = "p-2 mb-2 border rounded")
-                h4 title
-                p Woah. The text
-                p contacts
-                div(class ="d-flex")
-                    div(class="col-6") hits
-                    div(class="col-6") date
-            
-    section(class = "controls bg-light p-3 border")
-        div(class = "row bg-primary my-3 p-3")
-            div(class = "col-8 border p-3")
-                button(type="button" class="btn btn-dark border" id="modalToggle" data-toggle="modal" data-target="#myModal") New Ad!
-
+    section(id="mainView" class = "view d-flex flex-row-reverse flex-wrap border p-3")
+                    
     include includes/modalNew
     include includes/modalExisting

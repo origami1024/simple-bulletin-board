@@ -2,6 +2,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 const pug = {
     test: /\.pug$/,
@@ -18,11 +19,19 @@ const config = {
         rules: [pug]
     },
     plugins: [
+        new CopyWebpackPlugin([
+            {
+              from: path.resolve(__dirname, 'src/scripts/'),
+              to: path.resolve(__dirname, 'dist/scripts/'),
+              ignore: ['.*']
+            }
+        ]),
         new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: 'src/index.pug',
-        inject: false
+            filename: 'index.html',
+            template: 'src/index.pug',
+            inject: false
         })
+        
     ]
 };
 module.exports = config;
