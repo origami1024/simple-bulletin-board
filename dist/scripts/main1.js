@@ -1,5 +1,5 @@
 let datalastId = 0
-
+let globalTitle = 'Orror horror'
 function send(e){
     e.preventDefault();
     $.ajax({
@@ -63,8 +63,30 @@ $('#myModal').on('shown.bs.modal', function () {
     $('#textInp').trigger('focus')
 })
 $('#oldModal').on('shown.bs.modal', function () {
-    //$('.oldModal-title').text(globalTitle)
+    //$('.oldModalTitle').text(globalTitle)
     //TODO: make  it work with dynamically generated content
 })
+
 theForm.addEventListener("submit", send);
 
+
+function setGlobalInfo(e){
+    globalTitle = 'the durpest'
+    if (e.target.nodeName == 'BUTTON'){
+        if (e.target.parentElement.classList.contains('noticeCard')) {
+            $('.oldModalTitle').text($(e.target.parentElement).find('h6').text())
+            $('.oldModalText').text($(e.target.parentElement).find('.cardsText').text())
+            $('.oldModalContacts').text($(e.target.parentElement).find('.cardsContacts').text())
+            $('.oldModalAuthor').text($(e.target.parentElement).find('.auId').text())
+            $('.oldModalHits').text($(e.target.parentElement).find('.hits').text())
+            $('.oldModalDate').text($(e.target.parentElement).find('.date0').text() +'___'+ $(e.target.parentElement).find('.date1').text())
+        }
+    }
+    else {
+        globalTitle = 'errorest! no buttone'
+    }
+}
+
+$(document).on("click touch", '.btnSeeMore', function(e) {
+    setGlobalInfo(e)
+});

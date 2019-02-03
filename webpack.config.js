@@ -13,7 +13,8 @@ const config = {
     entry: './src/app.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.js',
+        publicPath: '/dist' //yolo
     },
     module: {
         rules: [pug]
