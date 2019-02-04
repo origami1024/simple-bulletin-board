@@ -63,7 +63,7 @@ app.get('/refresh.bat', function(req, res) {
     res.send(res1.rows)
   })
   .catch(e => console.error(e.stack))
-
+  pool.end();
 });
 /////////////////
 
@@ -77,6 +77,7 @@ app.get('/new.bat', function(req, res) {
   console.log('que generated', que)
   pool.connect();
   pool.query(que, values).catch(e => res.send(e.stack))
+  pool.end();
 });
 //////////////////
 
@@ -104,7 +105,7 @@ app.get('/init1.bat', function(req, res) {
 ///////////////////
 app.get('/init.bat', function(req, res1) {
   console.log('init the table the experminte:', req.query)
-  let que = `CREATE TABLE notices2 (
+  let que = `CREATE TABLE notices3 (
     ad_id integer NOT NULL,
     author_id integer NOT NULL,
     title character varying(50) NOT NULL,
@@ -122,7 +123,7 @@ app.get('/init.bat', function(req, res1) {
     }
     
   }).then(res => {
-    res1.send(res)
+    res1.send('then then')
   })
   //let values = [req.query.title, req.query.text, req.query.cont]
   //console.log('que generated', que) 
