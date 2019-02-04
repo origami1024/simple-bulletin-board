@@ -104,4 +104,33 @@ function setGlobalInfo(e){
 
 $(document).on("click touch", '.btnSeeMore', function(e) {
     setGlobalInfo(e)
+    like(e)
 });
+
+function like(e){
+    
+    let tmp
+    let id
+    //send +1
+    //find element and current val
+    //redo there +1
+    /*
+    if (e.target.nodeName == 'BUTTON'){
+        id = e.target.id.substring(7,e.target.id.length);
+        tmp = $(e.target).find('.badge').text();
+        $(e.target).find('.badge').text(parseInt(tmp) + 1);
+    }
+    else {
+        id = e.target.parentElement.id.substring(7,e.target.parentElement.id.length);
+        tmp = $(e.target.parentElement).find('.badge').text();
+        $(e.target.parentElement).find('.badge').text(parseInt(tmp) + 1);
+    }
+    $.ajax({
+            type: 'GET',
+          url: 'like.php',
+          data : { 'id' : id },
+          success: function(data) {
+          }
+        });
+    */
+}
