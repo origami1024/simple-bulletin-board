@@ -18,7 +18,7 @@ if (connectionString != 'postgres://postgres:1234@localhost:5432/postgres'){
   sslTmp = true
   console.log('IS TRUE')
 }
-const pool = new Client({
+const pool = new Pool({
   connectionString: connectionString,
   ssl: sslTmp //this shud be true
 })
@@ -102,7 +102,7 @@ app.get('/init1.bat', function(req, res) {
 
 //some tries
 ///////////////////
-app.get('/init.bat', function(req, res) {
+app.get('/init.bat', function(req, res1) {
   console.log('init the table the experminte:', req.query)
   let que = `CREATE TABLE notices2 (
     ad_id integer NOT NULL,
@@ -113,10 +113,6 @@ app.get('/init.bat', function(req, res) {
     created_on timestamp without time zone DEFAULT now() NOT NULL,
     hits integer NOT NULL
 );`
-
-
-
-
   pool.connect();
 
   pool.query(que, (err, res) => {
@@ -125,8 +121,8 @@ app.get('/init.bat', function(req, res) {
       console.log(JSON.stringify(row));
     }
     
-  }).then(res1 => {
-    res.send(res.rows)
+  }).then(res => {
+    res1.send(res)
   })
   //let values = [req.query.title, req.query.text, req.query.cont]
   //console.log('que generated', que) 
