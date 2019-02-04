@@ -104,7 +104,7 @@ app.get('/init1.bat', function(req, res) {
 ///////////////////
 app.get('/init.bat', function(req, res) {
   console.log('init the table the experminte:', req.query)
-  let que = `CREATE TABLE notices (
+  let que = `CREATE TABLE notices2 (
     ad_id integer NOT NULL,
     author_id integer NOT NULL,
     title character varying(50) NOT NULL,
