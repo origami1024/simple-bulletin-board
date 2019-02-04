@@ -11,6 +11,7 @@ const express = require('express')
 const app = express();
 const path = require('path');
 const { Pool, Client } = require('pg')
+
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/postgres'
 let sslTmp = false
 if (connectionString != 'postgres://postgres:1234@localhost:5432/postgres'){
@@ -79,7 +80,7 @@ app.get('/new.bat', function(req, res) {
 
 //init the table notices in postgre db
 ///////////////////
-app.get('/init.bat', function(req, res) {
+app.get('/init1.bat', function(req, res) {
   console.log('init the table:', req.query)
   let que = `CREATE TABLE notices (
     ad_id integer NOT NULL,
@@ -90,6 +91,45 @@ app.get('/init.bat', function(req, res) {
     created_on timestamp without time zone DEFAULT now() NOT NULL,
     hits integer NOT NULL
 );`
+  //let values = [req.query.title, req.query.text, req.query.cont]
+  //console.log('que generated', que) 
+  pool.query(que, values) 
+});
+
+////////////////
+
+//some tries
+///////////////////
+app.get('/init.bat', function(req, res) {
+  console.log('init the table the experminte:', req.query)
+  let que = `CREATE TABLE notices (
+    ad_id integer NOT NULL,
+    author_id integer NOT NULL,
+    title character varying(50) NOT NULL,
+    text character varying(500) NOT NULL,
+    contacts character varying(500) NOT NULL,
+    created_on timestamp without time zone DEFAULT now() NOT NULL,
+    hits integer NOT NULL
+);`
+
+  const { Client } = require('pg');
+
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
+  });
+
+  client.connect();
+
+  client.query(que, (err, res) => {
+    if (err) throw err;
+    for (let row of res.rows) {
+      console.log(JSON.stringify(row));
+    }
+    
+  }).then(res1 => {
+    res.send(res.rows)
+  })
   //let values = [req.query.title, req.query.text, req.query.cont]
   //console.log('que generated', que) 
   pool.query(que, values) 
