@@ -76,7 +76,7 @@ app.get('/new.bat', function(req, res) {
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
   pool.connect();
-  pool.query(que, values) 
+  pool.query(que, values).catch(e => res.send(e.stack))
 });
 //////////////////
 
