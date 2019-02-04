@@ -22,6 +22,7 @@ const pool = new Pool({
   connectionString: connectionString,
   ssl: sslTmp //this shud be true
 })
+pool.connect();
 
 function getNoticesAfterId(afterAdId) {
   resu = ''
@@ -57,13 +58,13 @@ app.get('/scripts/main1.js', function(req, res) {
 //////////////////
 app.get('/refresh.bat', function(req, res) {
   console.log('REFRESH ASKED! ', req.query.i)
-  pool.connect();
+  
   pool.query('SELECT * FROM notices where ad_id>' + req.query.i + ';')
   .then(res1 => {
     res.send(res1.rows)
   })
   .catch(e => console.error(e.stack))
-  pool.end();
+  
 });
 /////////////////
 
@@ -75,9 +76,9 @@ app.get('/new.bat', function(req, res) {
   VALUES(10001, $1, $2, $3, 0 );`
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
-  pool.connect();
+  //pool.connect();
   pool.query(que, values).catch(e => res.send(e.stack))
-  pool.end();
+  //pool.end();
 });
 //////////////////
 
