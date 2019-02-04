@@ -75,8 +75,8 @@ function sendInit(e){
         data : { 'hi' : 'dud' },
         success: function(data) {
             console.log('init success')
-        }
-        else {
+        },
+        error: function(data){
             console.log('init fail')
         }
     })
