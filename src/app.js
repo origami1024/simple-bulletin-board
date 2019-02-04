@@ -77,36 +77,20 @@ app.get('/new.bat', function(req, res) {
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
   //pool.connect();
-  pool.query(que, values).catch(e => res.send(e.stack))
+  pool.query(que, values).then(res1 => {
+    res.send('ok')
+  })
   //pool.end();
 });
 //////////////////
 
+
+
 //init the table notices in postgre db
-///////////////////
-app.get('/init1.bat', function(req, res) {
-  console.log('init the table:', req.query)
-  let que = `CREATE TABLE notices (
-    ad_id integer NOT NULL,
-    author_id integer NOT NULL,
-    title character varying(50) NOT NULL,
-    text character varying(500) NOT NULL,
-    contacts character varying(500) NOT NULL,
-    created_on timestamp without time zone DEFAULT now() NOT NULL,
-    hits integer NOT NULL
-);`
-  //let values = [req.query.title, req.query.text, req.query.cont]
-  //console.log('que generated', que) 
-  pool.query(que, values) 
-});
-
-////////////////
-
-//some tries
 ///////////////////
 app.get('/init.bat', function(req, res1) {
   console.log('init the table the experminte:', req.query)
-  let que = `CREATE TABLE notices3 (
+  let que = `CREATE TABLE notices (
     ad_id integer NOT NULL,
     author_id integer NOT NULL,
     title character varying(50) NOT NULL,
