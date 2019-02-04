@@ -67,8 +67,23 @@ $('#oldModal').on('shown.bs.modal', function () {
     //TODO: make  it work with dynamically generated content
 })
 
-theForm.addEventListener("submit", send);
+function sendInit(e){
+    //ajax on that init
+    $.ajax({
+        type: 'GET',
+        url: 'init.bat',
+        data : { 'hi' : 'dud' },
+        success: function(data) {
+            console.log('init success')
+        }
+        else {
+            console.log('init fail')
+        }
+    })
+}
 
+theForm.addEventListener("submit", send);
+initNotices.addEventListener("click", sendInit);
 
 function setGlobalInfo(e){
     globalTitle = 'the durpest'

@@ -52,7 +52,7 @@ app.get('/scripts/main1.js', function(req, res) {
 });
 
 
-//refresh procedure!
+//refresh!
 //////////////////
 app.get('/refresh.bat', function(req, res) {
   console.log('REFRESH ASKED! ', req.query.i)
@@ -65,7 +65,7 @@ app.get('/refresh.bat', function(req, res) {
 });
 /////////////////
 
-//add new procedure!
+//add new!
 ///////////////////
 app.get('/new.bat', function(req, res) {
   console.log('add a ad:', req.query)
@@ -73,11 +73,28 @@ app.get('/new.bat', function(req, res) {
   VALUES(10001, $1, $2, $3, 0 )`
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
-  pool.query(que, values)
+  pool.query(que, values) 
+});
+//////////////////
 
-  
+//init the table notices in postgre db
+///////////////////
+app.get('/init.bat', function(req, res) {
+  console.log('init the table:', req.query)
+  let que = `CREATE TABLE notices (
+    ad_id integer NOT NULL,
+    author_id integer NOT NULL,
+    title character varying(50) NOT NULL,
+    text character varying(500) NOT NULL,
+    contacts character varying(500) NOT NULL,
+    created_on timestamp without time zone DEFAULT now() NOT NULL,
+    hits integer NOT NULL
+);`
+  //let values = [req.query.title, req.query.text, req.query.cont]
+  //console.log('que generated', que) 
+  pool.query(que, values) 
 });
 
-//////////////////
+////////////////
 
 app.listen(PORT);
