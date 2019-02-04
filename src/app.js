@@ -10,7 +10,7 @@ PORT = process.env.PORT || 8000;
 const express = require('express')
 const app = express();
 const path = require('path');
-const { Pool, Client } = require('pg')
+const { Pool } = require('pg')
 
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/postgres'
 let sslTmp = false
@@ -57,6 +57,7 @@ app.get('/scripts/main1.js', function(req, res) {
 //////////////////
 app.get('/refresh.bat', function(req, res) {
   console.log('REFRESH ASKED! ', req.query.i)
+  pool.connect();
   pool.query('SELECT * FROM notices where ad_id>' + req.query.i)
   .then(res1 => {
     res.send(res1.rows)
@@ -74,6 +75,7 @@ app.get('/new.bat', function(req, res) {
   VALUES(10001, $1, $2, $3, 0 )`
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
+  pool.connect();
   pool.query(que, values) 
 });
 //////////////////
@@ -112,16 +114,12 @@ app.get('/init.bat', function(req, res) {
     hits integer NOT NULL
 );`
 
-  const { Client } = require('pg');
 
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  });
 
-  client.connect();
 
-  client.query(que, (err, res) => {
+  pool.connect();
+
+  pool.query(que, (err, res) => {
     if (err) throw err;
     for (let row of res.rows) {
       console.log(JSON.stringify(row));
@@ -132,7 +130,7 @@ app.get('/init.bat', function(req, res) {
   })
   //let values = [req.query.title, req.query.text, req.query.cont]
   //console.log('que generated', que) 
-  pool.query(que, values) 
+  //pool.query(que, values) 
 });
 
 ////////////////
