@@ -18,7 +18,7 @@ if (connectionString != 'postgres://postgres:1234@localhost:5432/postgres'){
   sslTmp = true
   console.log('IS TRUE')
 }
-const pool = new Pool({
+const pool = new Client({
   connectionString: connectionString,
   ssl: sslTmp //this shud be true
 })
