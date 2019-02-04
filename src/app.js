@@ -58,7 +58,7 @@ app.get('/scripts/main1.js', function(req, res) {
 app.get('/refresh.bat', function(req, res) {
   console.log('REFRESH ASKED! ', req.query.i)
   pool.connect();
-  pool.query('SELECT * FROM notices where ad_id>' + req.query.i)
+  pool.query('SELECT * FROM notices where ad_id>' + req.query.i + ';')
   .then(res1 => {
     res.send(res1.rows)
   })
@@ -72,7 +72,7 @@ app.get('/refresh.bat', function(req, res) {
 app.get('/new.bat', function(req, res) {
   console.log('add a ad:', req.query)
   let que = `INSERT INTO notices(author_id, title, text, contacts, hits) 
-  VALUES(10001, $1, $2, $3, 0 )`
+  VALUES(10001, $1, $2, $3, 0 );`
   let values = [req.query.title, req.query.text, req.query.cont]
   console.log('que generated', que)
   pool.connect();
