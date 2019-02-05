@@ -38,6 +38,7 @@ function upd(){
                 let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
+                clone.querySelectorAll(".btnSeeMore")[0].data(x.ad_id)
                 view.appendChild(clone);
                 datalastId = x.ad_id
             });
@@ -111,6 +112,7 @@ function like(e){
     
     let tmp
     let id
+
     //send +1
     //find element and current val
     //redo there +1
@@ -125,12 +127,18 @@ function like(e){
         tmp = $(e.target.parentElement).find('.badge').text();
         $(e.target.parentElement).find('.badge').text(parseInt(tmp) + 1);
     }
-    $.ajax({
-            type: 'GET',
-          url: 'like.php',
-          data : { 'id' : id },
-          success: function(data) {
-          }
-        });
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'like.bat?id=' + id);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            alert('User\'s name is ' + xhr.responseText);
+            
+        }
+        else {
+            alert('Request failed.  Returned status of ' + xhr.status);
+        }
+    };
+    xhr.send();    
     */
 }
