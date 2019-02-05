@@ -38,7 +38,7 @@ function upd(){
                 let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
-                clone.querySelectorAll(".btnSeeMore")[0].data(x.ad_id)
+                clone.querySelectorAll(".btnSeeMore")[0].data(x.ad_id) 
                 view.appendChild(clone);
                 datalastId = x.ad_id
             });
