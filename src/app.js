@@ -84,7 +84,22 @@ app.get('/new.bat', function(req, res) {
 });
 //////////////////
 
-
+//hits
+//////////////////
+app.get('/hit.bat', function(req, res) {
+  console.log('Hit on id: ', req.query.id)
+  //put the hits into the table
+  
+  //res.send('BUGGER!')
+  /*
+  pool.query('SELECT * FROM notices where ad_id>' + req.query.i + ';')
+  .then(res1 => {
+    res.send(res1.rows)
+  })
+  .catch(e => console.error(e.stack))
+  */
+});
+/////////////////
 
 //init the table notices in postgre db
 ///////////////////

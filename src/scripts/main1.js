@@ -38,7 +38,8 @@ function upd(){
                 let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
-                $(clone).find(".btnSeeMore").data(x.ad_id) 
+                $(clone).find(".btnSeeMore").data('adId', x.ad_id) 
+                //$(clone).find(".btnSeeMore").data('hurp', 'durp')
                 view.appendChild(clone);
                 datalastId = x.ad_id
             });
@@ -105,14 +106,14 @@ function setGlobalInfo(e){
 
 $(document).on("click touch", '.btnSeeMore', function(e) {
     setGlobalInfo(e)
-    like(e)
+    //console.log($(e.target).data('adId'))
+    hit(e)
 });
 
-function like(e){
-    
-    let tmp
-    let id
-
+function hit(e){    
+    let id = $(e.target).data('adId')
+    let tmp = $(e.target.parentElement).find('.hits').text()
+    $(e.target.parentElement).find('.hits').text(parseInt(tmp) + 1);
     //send +1
     //find element and current val
     //redo there +1
@@ -127,18 +128,17 @@ function like(e){
         tmp = $(e.target.parentElement).find('.badge').text();
         $(e.target.parentElement).find('.badge').text(parseInt(tmp) + 1);
     }
-
+    */
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'like.bat?id=' + id);
+    xhr.open('GET', 'hit.bat?id=' + id, true);
     xhr.onload = function() {
-        if (xhr.status === 200) {
-            alert('User\'s name is ' + xhr.responseText);
-            
+        /*if (xhr.status === 200) {
+            console.log('User\'s name is ' + xhr.responseText);
         }
         else {
-            alert('Request failed.  Returned status of ' + xhr.status);
-        }
+            console.log('Request failed.  Returned status of ' + xhr.status);
+        }*/
     };
     xhr.send();    
-    */
+    
 }
