@@ -1,22 +1,77 @@
 let datalastId = 0
 let globalTitle = 'Orror horror'
-function send(e){
+let theFile
+
+function getBase64() {
+    var reader = new FileReader();
+    reader.readAsDataURL(picInp.files[0]);
+    reader.onload = function () {
+      console.log(reader.result);
+      theFile = reader.result
+    };
+    reader.onerror = function (error) {
+      console.log('Error: ', error);
+    };
+ }
+
+/*function send(e){
     e.preventDefault();
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: 'new.bat',
-        data : { 'title' : titleInp.value, 'text' : textInp.value , 'pic' : picInp.value, 'cont' : contactsInp.value },
+        data : {
+            'title' : titleInp.value,
+            'text' : textInp.value,
+            'cont' : contactsInp.value
+        },
         success: function(data) {
-            //
+            console.log(data)
+            if (theFile != undefined){
+                $.ajax({
+                    type: 'POST',
+                    url: 'img.bat',
+                    data : {'ad_id':67, 'f': theFile},
+                    success: function(data) {
+                        console.log('img: ', data)
+                        
+                    }
+                })
+            }
         }
     })
     titleInp.value = ''
     textInp.value = ''
-    picInp.value = ''
-    setTimeout(function(){
+    $('#myModal').modal('hide');
+}*/
+
+function send(e){
+    e.preventDefault();
+    let formData = new FormData(document.querySelector('#theForm'))
+    //let formData = new FormData()
+    //formData.append('title','yolo')
+    //formData.append('filll','swag')
+    //formData.append('file',picInp)
+    $.ajax({
+        type: 'POST',
+        url: 'new.bat',
+        data : formData,
+        //contentType: "multipart/form-data",
+        //cache: false,
+        contentType: false,
+        processData: false,
+        success: function(data) {
+            console.log(data)
+        }
+    })
+    titleInp.value = ''
+    //textInp.value = ''
+    //picInp.value = ''
+    $('#myModal').modal('hide');
+    /*setTimeout(function(){
         $('#myModal').modal('hide');
-        $('#loader').hide();
-    }, 200);
+        $('#loader').hide(100);
+    }, 100);*/
+
 }
 
 function upd(){
@@ -27,21 +82,33 @@ function upd(){
         success: function(data) {
             //console.log("ajax refresh success", data.length);
             data.forEach(x => {
+                //x = x['row'].substring(1,x['row'].length-1).split(',')
+                x = x['row'].substring(1,x['row'].length-1)
+                //console.log(x)
+                x = JSON.parse('[' + x + ']')
+                /*x = x.map(y =>{
+                    if ((y[0] == '"') && (y[y.length-1] == '"') ) {
+                        return y.substring(1,y.length-1)
+                    } else return y
+                })*/
+                //console.log(x)
                 let templ = document.querySelector('#noticeCardTemp')
                 let view = document.querySelector("#mainView")
                 let clone = document.importNode(templ.content, true);
-                clone.querySelectorAll("h6")[0].textContent = x.title
-                clone.querySelectorAll("p")[0].textContent = x.text
-                clone.querySelectorAll("p")[1].textContent = x.contacts
-                clone.querySelectorAll(".auId")[0].textContent = x.author_id
-                clone.querySelectorAll(".hits")[0].textContent = x.hits
-                let dat = x.created_on.split('T')
+                //imgpls?imgId=96
+                clone.querySelectorAll("img")[0].src = "imgpls?imgId=" + x[0]
+                clone.querySelectorAll("h6")[0].textContent = x[2]//x.title
+                clone.querySelectorAll("p")[0].textContent = x[3]//x.text
+                clone.querySelectorAll("p")[1].textContent = x[4]//x.contacts
+                clone.querySelectorAll(".auId")[0].textContent = x[1]//x.author_id
+                clone.querySelectorAll(".hits")[0].textContent = x[6]//x.hits
+                let dat = x[5].split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
-                $(clone).find(".btnSeeMore").data('adId', x.ad_id) 
+                $(clone).find(".btnSeeMore").data('adId', x[0])//x.ad_id) 
                 //$(clone).find(".btnSeeMore").data('hurp', 'durp')
                 view.appendChild(clone);
-                datalastId = x.ad_id
+                datalastId = x[0] //x.ad_id
             });
         },
         error: function(msg) {
@@ -86,11 +153,12 @@ function sendInit(e){
 
 theForm.addEventListener("submit", send);
 initNotices.addEventListener("click", sendInit);
-
+//picInp.addEventListener("change", getBase64);
 function setGlobalInfo(e){
     globalTitle = 'the durpest'
     if (e.target.nodeName == 'BUTTON'){
         if (e.target.parentElement.classList.contains('noticeCard')) {
+            $('.oldModalPic').attr('src', $(e.target.parentElement).find('img').attr('src') )
             $('.oldModalTitle').text($(e.target.parentElement).find('h6').text())
             $('.oldModalText').text($(e.target.parentElement).find('.cardsText').text())
             $('.oldModalContacts').text($(e.target.parentElement).find('.cardsContacts').text())
@@ -105,30 +173,16 @@ function setGlobalInfo(e){
 }
 
 $(document).on("click touch", '.btnSeeMore', function(e) {
-    setGlobalInfo(e)
     //console.log($(e.target).data('adId'))
     hit(e)
+    setGlobalInfo(e)
 });
 
 function hit(e){    
     let id = $(e.target).data('adId')
     let tmp = $(e.target.parentElement).find('.hits').text()
     $(e.target.parentElement).find('.hits').text(parseInt(tmp) + 1);
-    //send +1
-    //find element and current val
-    //redo there +1
-    /*
-    if (e.target.nodeName == 'BUTTON'){
-        id = e.target.id.substring(7,e.target.id.length);
-        tmp = $(e.target).find('.badge').text();
-        $(e.target).find('.badge').text(parseInt(tmp) + 1);
-    }
-    else {
-        id = e.target.parentElement.id.substring(7,e.target.parentElement.id.length);
-        tmp = $(e.target.parentElement).find('.badge').text();
-        $(e.target.parentElement).find('.badge').text(parseInt(tmp) + 1);
-    }
-    */
+    
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'hit.bat?id=' + id, true);
     xhr.onload = function() {

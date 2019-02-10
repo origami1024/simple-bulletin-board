@@ -5,20 +5,19 @@ div(class="py-3 rounded modal fade" role="dialog" tabindex="-1" id="myModal")
                 h5(class="modal-title text-white") Make a new Ad
                 button(type="button" class="close" data-dismiss="modal" aria-label="Close")
                     span(class="text-white") &times;
-            form(id="theForm")
+            form(id="theForm" enctype="multipart/form-data" method="POST")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
                     label(for="titleInp" class="mb-0 pl-2 text-white") Title
-                    input(type="text" class="form-control form-control-sm" id="titleInp" required pattern=".{3,}" placeholder="Ad title" title="3 characters minimum")
-                div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
-                    label(for="picInp" class="mb-0 pl-2 text-white") Picture
-                    input(type="text" class="form-control form-control-sm" id="picInp" required pattern=".{3,}" placeholder="pic" title="3 characters minimum")
+                    input(type="text" name="title" class="form-control form-control-sm" id="titleInp" required pattern=".{3,}" placeholder="Ad title" title="3 characters minimum")
+                div(class="form-group py-2 py-sm-3 pb-0 mb-0")
+                    label(for="picInp" class="mb-0 pl-2 text-white") Picture1
+                    input(type="file" class="form-control-file bg-white" accept="image/png" id="picInp" name="picInp")
                 div(class="form-group mb-0 d-flex flex-column mt-1 mt-sm-3")
                     label(for="textInp" class="mb-0 pl-2 order-2 order-sm-1 text-white") Ad description
-                    textarea(class="form-control form-control-sm order-3 order-sm-2" id="textInp" required minlength="15" placeholder="Description")
+                    textarea(class="form-control form-control-sm order-3 order-sm-2" name="text" id="textInp" required minlength="5" placeholder="Description")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
                     label(for="contactsInp" class="mb-0 pl-2 text-white") Contacts//pick from info in profile
-                    input(type="text" class="form-control form-control-sm" id="contactsInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
+                    input(type="text" class="form-control form-control-sm" name="contacts" id="contactsInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
                 div(class="input-group mt-0 mb-1 mb-sm-0 mt-sm-3 col-12 col-sm-4 order-1 order-sm-3 p-0")
                     button(type="submit" class="btn btn-dark border btn-block" id="subm") send
                         i(class="fa fa-paper-plane" aria-hidden="true")
-                        
