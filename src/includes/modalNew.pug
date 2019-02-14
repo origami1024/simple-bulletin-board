@@ -18,6 +18,9 @@ div(class="py-3 rounded modal fade" role="dialog" tabindex="-1" id="myModal")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
                     label(for="contactsInp" class="mb-0 pl-2 text-white") Contacts//pick from info in profile
                     input(type="text" class="form-control form-control-sm" name="contacts" id="contactsInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
+                div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                    label(for="categoriesInp" class="mb-0 pl-2 text-white") Categories
+                    input(type="text" class="form-control form-control-sm" name="categories" id="categoriesInp" maxlength="20")
                 div(class="input-group mt-0 mb-1 mb-sm-0 mt-sm-3 col-12 col-sm-4 order-1 order-sm-3 p-0")
                     button(type="submit" class="btn btn-dark border btn-block" id="subm") send
                         i(class="fa fa-paper-plane" aria-hidden="true")

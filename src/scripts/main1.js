@@ -1,5 +1,5 @@
 let datalastId = 0
-let globalTitle = 'Orror horror'
+let globalTitle = 'Orror hor'
 let theFile
 
 function getBase64() {
@@ -47,10 +47,12 @@ function getBase64() {
 function send(e){
     e.preventDefault();
     let formData = new FormData(document.querySelector('#theForm'))
+    
     //let formData = new FormData()
     //formData.append('title','yolo')
     //formData.append('filll','swag')
     //formData.append('file',picInp)
+    
     $.ajax({
         type: 'POST',
         url: 'new.bat',
@@ -82,33 +84,47 @@ function upd(){
         success: function(data) {
             //console.log("ajax refresh success", data.length);
             data.forEach(x => {
+                console.log(x)
                 //x = x['row'].substring(1,x['row'].length-1).split(',')
-                x = x['row'].substring(1,x['row'].length-1)
-                //console.log(x)
-                x = JSON.parse('[' + x + ']')
+                //x = x['row'].substring(1,x['row'].length-1)                
+                //x = JSON.parse('[' + x + ']')
                 /*x = x.map(y =>{
                     if ((y[0] == '"') && (y[y.length-1] == '"') ) {
                         return y.substring(1,y.length-1)
                     } else return y
                 })*/
-                //console.log(x)
+
                 let templ = document.querySelector('#noticeCardTemp')
                 let view = document.querySelector("#mainView")
                 let clone = document.importNode(templ.content, true);
                 //imgpls?imgId=96
-                clone.querySelectorAll("img")[0].src = "imgpls?imgId=" + x[0]
-                clone.querySelectorAll("h6")[0].textContent = x[2]//x.title
-                clone.querySelectorAll("p")[0].textContent = x[3]//x.text
-                clone.querySelectorAll("p")[1].textContent = x[4]//x.contacts
-                clone.querySelectorAll(".auId")[0].textContent = x[1]//x.author_id
-                clone.querySelectorAll(".hits")[0].textContent = x[6]//x.hits
-                let dat = x[5].split('T')
+                clone.querySelectorAll("img")[0].src = "imgpls?imgId=" + x.ad_id
+                clone.querySelectorAll("h6")[0].textContent = x.title
+                clone.querySelectorAll("p")[0].textContent = x.text
+                clone.querySelectorAll("p")[1].textContent = x.contacts
+                clone.querySelectorAll(".auId")[0].textContent = x.author_id
+                clone.querySelectorAll(".hits")[0].textContent = x.hits
+                let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
-                $(clone).find(".btnSeeMore").data('adId', x[0])//x.ad_id) 
-                //$(clone).find(".btnSeeMore").data('hurp', 'durp')
+                $(clone).find(".btnSeeMore").data('adId', x.ad_id)
+                clone.querySelectorAll(".nCardCategories")[0].textContent = x.categories
+                //console.log(x.categories)
+                //clone.querySelectorAll(".cardCategoriesVis")[0].textContent = x.categories
+                //console.log(Array.isArray(x.categories))
+                if (Array.isArray(x.categories)){
+                    x.categories.forEach(xxx=>{
+                        let newTag = document.createElement("span")
+                        newTag.textContent = xxx
+                        newTag.classList.add("badge", "bg-info", "mx-1")
+                        clone.querySelectorAll(".cardCategoriesVis")[0].appendChild(newTag)
+                    })
+                    
+                }
                 view.appendChild(clone);
-                datalastId = x[0] //x.ad_id
+                datalastId = x.ad_id
+                
+                
             });
         },
         error: function(msg) {
@@ -127,6 +143,11 @@ function timerGo() {
 
 timerGo();
 
+$('#categoriesInp').tagsInput({
+    'height':'48px',
+    'width':'100%',
+    'maxChars' : 14
+});
 
 $('#myModal').on('shown.bs.modal', function () {
     $('#textInp').trigger('focus')
@@ -152,7 +173,7 @@ function sendInit(e){
 }
 
 theForm.addEventListener("submit", send);
-initNotices.addEventListener("click", sendInit);
+//initNotices.addEventListener("click", sendInit);
 //picInp.addEventListener("change", getBase64);
 function setGlobalInfo(e){
     globalTitle = 'the durpest'
@@ -165,6 +186,11 @@ function setGlobalInfo(e){
             $('.oldModalAuthor').text($(e.target.parentElement).find('.auId').text())
             $('.oldModalHits').text($(e.target.parentElement).find('.hits').text())
             $('.oldModalDate').text($(e.target.parentElement).find('.date0').text() +'___'+ $(e.target.parentElement).find('.date1').text())
+            $('.oldModalCategories').empty()
+            let tmp = $(e.target.parentElement).find('.nCardCategories').text().split(',')
+            tmp.forEach(x=>{
+                $('.oldModalCategories').append('<span class="badge bg-info mx-1">' + x + '</span>')
+            })
         }
     }
     else {

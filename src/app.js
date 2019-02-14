@@ -5,7 +5,7 @@ NOTICE BOARD
   COUNT THE HITS
   POSTGRESQL
 */
-PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8000;
 
 const fs = require('fs')
 const express = require('express')
@@ -71,9 +71,8 @@ app.get('/scripts/main1.js', function(req, res) {
 app.get('/refresh.bat', function(req, res) {
   //console.log('REFRESH ASKED! ', req.query.i)
   
-  pool.query('SELECT (ad_id, author_id, title, text, contacts, created_on, hits) FROM notices WHERE ad_id>' + req.query.i + ' ORDER BY ad_id;')
+  pool.query('SELECT ad_id, author_id, title, text, contacts, created_on, hits, categories FROM notices WHERE ad_id>' + req.query.i + ' ORDER BY ad_id;')
   .then(res1 => {
-    //console.log('!!!', res1.rows)
     res.send(res1.rows)
   })
   .catch(e => console.error(e.stack))
@@ -85,16 +84,16 @@ app.get('/refresh.bat', function(req, res) {
 
 //make new ad, with img
 app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
-  console.log(req.body)
+  //console.log(req.body)
   //console.log(req.file)
   //so we got the data and the file here,
   //now step to put the file into db
   //req.file.buffer
   //console.log('oro: ', req.file.buffer)
-  //console.log('new.bat: title:', req.body.title)
-  let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic) 
-  VALUES(10001, $1, $2, $3, 0, $4 );`
-  let values = [req.body.title, req.body.text, req.body.contacts, req.file.buffer]
+  console.log('new.bat: req.body.categories:', req.body.categories)
+  let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories) 
+  VALUES(10001, $1, $2, $3, 0, $4, $5 );`
+  let values = [req.body.title, req.body.text, req.body.contacts, req.file.buffer, req.body.categories.split(',')]
   pool.query(que, values).then(res1 => {
     res.send('ok')
   });
@@ -161,16 +160,7 @@ app.post('/new.bat', function(req, res) {
 //hits
 //////////////////
 app.get('/hit.bat', function(req, res) {
-  //console.log('Hit on id: ', "update notices set hits = hits + 1 where ad_id=" + req.query.id + ';')
-  //put the hits into the table
-  //res.send('BUGGER!')
-  
   pool.query("update notices set hits = hits + 1 where ad_id=" + req.query.id + ';')
-  /*.then(res1 => {
-    res.send(res1.rows)
-  })
-  .catch(e => console.error(e.stack))*/
-  
 });
 /////////////////
 
