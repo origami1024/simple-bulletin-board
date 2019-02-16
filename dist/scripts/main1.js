@@ -1,58 +1,46 @@
 let datalastId = 0
 let globalTitle = 'Orror hor'
-let theFile
 
-function getBase64() {
-    var reader = new FileReader();
-    reader.readAsDataURL(picInp.files[0]);
-    reader.onload = function () {
-      console.log(reader.result);
-      theFile = reader.result
-    };
-    reader.onerror = function (error) {
-      console.log('Error: ', error);
-    };
- }
+let state = {
+    login: false
+}
+////UTILS PART
+//import hashCode from './utils'
+//import getCookie from './utils'
+const hashCode = function(string) {
+    let hash = 0;
+    if (string.length == 0) {
+        return hash;
+    }
+    for (let i = 0; i < string.length; i++) {
+        let char = string.charCodeAt(i);
+        hash = ((hash<<5)-hash)+char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
+}
+const getCookie = function(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
+////
 
-/*function send(e){
-    e.preventDefault();
-    $.ajax({
-        type: 'POST',
-        url: 'new.bat',
-        data : {
-            'title' : titleInp.value,
-            'text' : textInp.value,
-            'cont' : contactsInp.value
-        },
-        success: function(data) {
-            console.log(data)
-            if (theFile != undefined){
-                $.ajax({
-                    type: 'POST',
-                    url: 'img.bat',
-                    data : {'ad_id':67, 'f': theFile},
-                    success: function(data) {
-                        console.log('img: ', data)
-                        
-                    }
-                })
-            }
-        }
-    })
-    titleInp.value = ''
-    textInp.value = ''
-    $('#myModal').modal('hide');
-}*/
 
 function send(e){
     e.preventDefault();
     let formData = new FormData(document.querySelector('#theForm'))
-    
-    //let formData = new FormData()
-    //formData.append('title','yolo')
-    //formData.append('filll','swag')
-    //formData.append('file',picInp)
-    
+    formData.append('auName', state.data.username)
     $.ajax({
         type: 'POST',
         url: 'new.bat',
@@ -66,14 +54,8 @@ function send(e){
         }
     })
     titleInp.value = ''
-    //textInp.value = ''
-    //picInp.value = ''
+    textInp.value = ''
     $('#myModal').modal('hide');
-    /*setTimeout(function(){
-        $('#myModal').modal('hide');
-        $('#loader').hide(100);
-    }, 100);*/
-
 }
 
 function upd(){
@@ -84,16 +66,7 @@ function upd(){
         success: function(data) {
             //console.log("ajax refresh success", data.length);
             data.forEach(x => {
-                console.log(x)
-                //x = x['row'].substring(1,x['row'].length-1).split(',')
-                //x = x['row'].substring(1,x['row'].length-1)                
-                //x = JSON.parse('[' + x + ']')
-                /*x = x.map(y =>{
-                    if ((y[0] == '"') && (y[y.length-1] == '"') ) {
-                        return y.substring(1,y.length-1)
-                    } else return y
-                })*/
-
+                //console.log(x)
                 let templ = document.querySelector('#noticeCardTemp')
                 let view = document.querySelector("#mainView")
                 let clone = document.importNode(templ.content, true);
@@ -102,29 +75,25 @@ function upd(){
                 clone.querySelectorAll("h6")[0].textContent = x.title
                 clone.querySelectorAll("p")[0].textContent = x.text
                 clone.querySelectorAll("p")[1].textContent = x.contacts
-                clone.querySelectorAll(".auId")[0].textContent = x.author_id
+                clone.querySelectorAll(".authorLink")[0].setAttribute("href", x.author_id)
+                clone.querySelectorAll(".authorLink")[0].textContent = x.auname
                 clone.querySelectorAll(".hits")[0].textContent = x.hits
                 let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
                 clone.querySelectorAll(".date1")[0].textContent = dat[1]
                 $(clone).find(".btnSeeMore").data('adId', x.ad_id)
                 clone.querySelectorAll(".nCardCategories")[0].textContent = x.categories
-                //console.log(x.categories)
-                //clone.querySelectorAll(".cardCategoriesVis")[0].textContent = x.categories
-                //console.log(Array.isArray(x.categories))
                 if (Array.isArray(x.categories)){
                     x.categories.forEach(xxx=>{
                         let newTag = document.createElement("span")
                         newTag.textContent = xxx
-                        newTag.classList.add("badge", "bg-info", "mx-1")
+                        newTag.classList.add("badge", "bg-info", "mx-1", "my-0")
                         clone.querySelectorAll(".cardCategoriesVis")[0].appendChild(newTag)
                     })
                     
                 }
                 view.appendChild(clone);
-                datalastId = x.ad_id
-                
-                
+                datalastId = x.ad_id               
             });
         },
         error: function(msg) {
@@ -132,6 +101,67 @@ function upd(){
         }
     })
 }
+
+function stateLogin(){
+    state.login = true
+    $(".logoutPart").removeClass("d-none")
+    $(".loginPart").toggleClass('d-flex').hide(0)//.addClass("d-none")
+    //$(".registerControl").addClass("d-none")
+    $(".registerControl").hide(0)
+    $(".uc__statusBadge").text("logged in")
+    $(".uc__statusBadge").removeClass("bg-warning")
+    $(".uc__statusBadge").addClass("bg-success")
+    $("#uc__btnProfile").text('Profile: ' + state.data.username)
+    $('#uc__btnProfile').prop('disabled', false)
+    $('#modalToggle').prop('disabled', false)
+}
+function stateLogout(){
+    state.login = false
+    $(".logoutPart").addClass("d-none")
+    $(".loginPart").toggleClass('d-flex').show(0)//.addClass("d-none")
+    //$(".registerControl").addClass("d-none")
+    $(".registerControl").show(0)
+    $(".uc__statusBadge").text("not logged in")
+    $(".uc__statusBadge").addClass("bg-warning")
+    $(".uc__statusBadge").removeClass("bg-success")
+    $("#uc__btnProfile").text("Profile: None")
+    $('#uc__btnProfile').prop('disabled', true)
+    $('#modalToggle').prop('disabled', true)
+}
+function login(e){
+    e.preventDefault();
+    $.ajax({
+        type: 'GET',
+        url: 'login',
+        data : {
+            login: $("#logLogin")[0].value,
+            pw: hashCode($("#logPW")[0].value)
+        },
+        statusCode: {
+            200: function(data) {
+            console.log(data)
+            console.log(200)
+            state.data = JSON.parse(getCookie("state")) 
+            stateLogin()
+            },
+            201: function(data) {
+            console.log(data)
+            console.log(201)
+            }
+        }
+    })
+}
+function logout(e){
+    e.preventDefault();
+    $.ajax({
+        type: 'GET',
+        url: 'logout',
+        success: function(data) {
+            stateLogout()
+        }
+    })
+}
+
 
 upd();
 function timerGo() {
@@ -143,19 +173,27 @@ function timerGo() {
 
 timerGo();
 
-$('#categoriesInp').tagsInput({
-    'height':'48px',
-    'width':'100%',
-    'maxChars' : 14
-});
 
-$('#myModal').on('shown.bs.modal', function () {
-    $('#textInp').trigger('focus')
+
+
+$( document ).ready(function() {
+    $(".btnLogin").on("click", login)
+    $(".btnLogout").on("click", logout)
+    $('#myModal').on('shown.bs.modal', function () {
+        $('#textInp').trigger('focus')
+    })
+    $('#categoriesInp').tagsInput({
+        'height':'48px',
+        'width':'100%',
+        'maxChars' : 14
+    });
+
+    if (getCookie("state")!=''){
+        state.data = JSON.parse(getCookie("state"))
+        stateLogin()
+    }
 })
-$('#oldModal').on('shown.bs.modal', function () {
-    //$('.oldModalTitle').text(globalTitle)
-    //TODO: make  it work with dynamically generated content
-})
+
 
 function sendInit(e){
     //ajax on that init
@@ -178,16 +216,16 @@ theForm.addEventListener("submit", send);
 function setGlobalInfo(e){
     globalTitle = 'the durpest'
     if (e.target.nodeName == 'BUTTON'){
-        if (e.target.parentElement.classList.contains('noticeCard')) {
-            $('.oldModalPic').attr('src', $(e.target.parentElement).find('img').attr('src') )
-            $('.oldModalTitle').text($(e.target.parentElement).find('h6').text())
-            $('.oldModalText').text($(e.target.parentElement).find('.cardsText').text())
-            $('.oldModalContacts').text($(e.target.parentElement).find('.cardsContacts').text())
-            $('.oldModalAuthor').text($(e.target.parentElement).find('.auId').text())
-            $('.oldModalHits').text($(e.target.parentElement).find('.hits').text())
-            $('.oldModalDate').text($(e.target.parentElement).find('.date0').text() +'___'+ $(e.target.parentElement).find('.date1').text())
+        if (e.target.parentElement.parentElement.classList.contains('noticeCard')) {
+            $('.oldModalPic').attr('src', $(e.target.parentElement.parentElement).find('img').attr('src') )
+            $('.oldModalTitle').text($(e.target.parentElement.parentElement).find('h6').text())
+            $('.oldModalText').text($(e.target.parentElement.parentElement).find('.cardsText').text())
+            $('.oldModalContacts').text($(e.target.parentElement.parentElement).find('.cardsContacts').text())
+            $('.oldModalAuthor').text($(e.target.parentElement.parentElement).find('.auId').text())
+            $('.oldModalHits').text($(e.target.parentElement.parentElement).find('.hits').text())
+            $('.oldModalDate').text($(e.target.parentElement.parentElement).find('.date0').text() +'___'+ $(e.target.parentElement.parentElement).find('.date1').text())
             $('.oldModalCategories').empty()
-            let tmp = $(e.target.parentElement).find('.nCardCategories').text().split(',')
+            let tmp = $(e.target.parentElement.parentElement).find('.nCardCategories').text().split(',')
             tmp.forEach(x=>{
                 $('.oldModalCategories').append('<span class="badge bg-info mx-1">' + x + '</span>')
             })
@@ -206,8 +244,9 @@ $(document).on("click touch", '.btnSeeMore', function(e) {
 
 function hit(e){    
     let id = $(e.target).data('adId')
-    let tmp = $(e.target.parentElement).find('.hits').text()
-    $(e.target.parentElement).find('.hits').text(parseInt(tmp) + 1);
+    console.log(id)
+    let tmp = $(e.target.parentElement.parentElement).find('.hits').text()
+    $(e.target.parentElement.parentElement).find('.hits').text(parseInt(tmp) + 1);
     
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'hit.bat?id=' + id, true);

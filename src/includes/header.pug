@@ -1,5 +1,5 @@
 header(class="flex")
-    div(class = "userControls container d-flex bg-primary p-2 mx-auto")
+    div(class = "userControls container d-flex bg-secondary p-2 mx-auto")
         div(class="mx-1")
             button(type="button" class="btn btn-dark border" id="modalToggle" data-toggle="modal" data-target="#myModal" disabled) New Ad!
         div()
@@ -14,8 +14,9 @@ header(class="flex")
                     input(type="text" class="small px-2 mx-1" id="logLogin" placeholder="login")
                     input(type="text" class="small px-2 mx-1" id="logPW" placeholder="password")
                     input(type="submit" class="btn btn-dark btn-sm btnLogin" value="login")
-            div(class="registerControl")               
-                button(class="btn btn-dark btnRegister") register
+            div(class="registerControl")
+                a(href="/reg" class="btnRegister btn btn-sm btn-dark" role="button") register
+                //button(class="btn btn-dark btnRegister") register
                 //register button must toggle the modal
 
         //button(type="button" class="btn btn-warning border d-none" id="initNotices") Init notices table

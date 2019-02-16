@@ -1,3 +1,4 @@
+
 /*
 NOTICE BOARD
   USER AUTH
@@ -5,6 +6,8 @@ NOTICE BOARD
   COUNT THE HITS
   POSTGRESQL
 */
+const utils = require('./scripts/utils');
+
 const PORT = process.env.PORT || 8000;
 
 const fs = require('fs')
@@ -12,7 +15,7 @@ const express = require('express')
 const app = express();
 const path = require('path');
 const { Pool } = require('pg')
-
+const cookieParser = require('cookie-parser')
 var multer  = require('multer')
 var storage = multer.memoryStorage()
 //var upload = multer({ dest: 'uploads/' })
@@ -30,30 +33,17 @@ const pool = new Pool({
 })
 pool.connect();
 
-/*
-function getNoticesAfterId(afterAdId) {
-  resu = ''
-  pool.query('SELECT * FROM notices')
-  .then(res => {
-    console.log(res.rows)
-    resu = 'peperoni'
-  })
-  .catch(e => console.error(e.stack))
 
-  return resu
-}*/
-
-
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(cookieParser())
 
 
 
 
 app.get('/', function(req, res) {
-    console.log('client wants index' + path)
+    console.log('client wants index ' + path)
     res.sendFile(path.join(__dirname, '/../dist/index.html'));
 });
 app.get('/assets/moon.png', function(req, res) {
@@ -64,14 +54,21 @@ app.get('/scripts/main1.js', function(req, res) {
   //console.log('js asked ' + __dirname)
   res.sendFile(path.join(__dirname, '/../dist/scripts/main1.js'));
 });
-
+app.get('/scripts/reg.js', function(req, res) {
+  //console.log('js asked ' + __dirname)
+  res.sendFile(path.join(__dirname, '/../dist/scripts/reg.js'));
+});
+app.get('/reg', function(req, res) {
+  console.log('client wants register')
+  res.sendFile(path.join(__dirname, '/../dist/reg.html'));
+});
 
 //refresh!
 //////////////////
 app.get('/refresh.bat', function(req, res) {
   //console.log('REFRESH ASKED! ', req.query.i)
   
-  pool.query('SELECT ad_id, author_id, title, text, contacts, created_on, hits, categories FROM notices WHERE ad_id>' + req.query.i + ' ORDER BY ad_id;')
+  pool.query('SELECT ad_id, author_id, title, text, contacts, created_on, hits, categories, auname FROM notices WHERE ad_id>' + req.query.i + ' ORDER BY ad_id;')
   .then(res1 => {
     res.send(res1.rows)
   })
@@ -79,6 +76,23 @@ app.get('/refresh.bat', function(req, res) {
   
 });
 /////////////////
+
+
+//register new user
+app.post('/newUser', function(req, res) {
+  console.log('NEW USER!!!')
+  console.log('login: ' + req.body.login)
+  let que = `INSERT INTO users(userName, userMail, userPW, userAbout) 
+  VALUES($1, $2, $3, $4);`
+  let values = [req.body.login, req.body.mail, req.body.pw, req.body.about]
+  console.log(values)
+  pool.query(que, values).then(res1 => {
+    res.send('ok')
+  });
+  //res.sendFile(path.join(__dirname, '/../dist/index.html'));
+});
+//
+
 
 
 
@@ -90,10 +104,10 @@ app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
   //now step to put the file into db
   //req.file.buffer
   //console.log('oro: ', req.file.buffer)
-  console.log('new.bat: req.body.categories:', req.body.categories)
-  let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories) 
-  VALUES(10001, $1, $2, $3, 0, $4, $5 );`
-  let values = [req.body.title, req.body.text, req.body.contacts, req.file.buffer, req.body.categories.split(',')]
+  console.log('new.bat: req.body.auName:', req.body.auName)
+  let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories, auname) 
+  VALUES(10001, $1, $2, $3, 0, $4, $5, $6 );`
+  let values = [req.body.title, req.body.text, req.body.contacts, req.file.buffer, req.body.categories.split(','), req.body.auName]
   pool.query(que, values).then(res1 => {
     res.send('ok')
   });
@@ -160,7 +174,9 @@ app.post('/new.bat', function(req, res) {
 //hits
 //////////////////
 app.get('/hit.bat', function(req, res) {
-  pool.query("update notices set hits = hits + 1 where ad_id=" + req.query.id + ';')
+  pool.query("update notices set hits = hits + 1 where ad_id=" + req.query.id + ';', ()=>{
+    res.end()
+  })
 });
 /////////////////
 
@@ -194,5 +210,45 @@ app.get('/init.bat', function(req, res1) {
 });
 
 ////////////////
+
+
+//login/logou
+app.get('/logout', function(req, res) {
+  res.cookie('state', '', {expires: new Date(0)});
+  res.end()
+  console.log('logout')
+  //need to delete more cookies
+  //also need to send back that app state should update
+})
+///
+app.get('/login', function(req, res) {
+  console.log("/login")
+  user = req.query.login
+  pw = req.query.pw
+  let que = "SELECT * FROM users where username='" + user + "' AND userpw='" + pw + "';"
+  pool.query(que)
+  .then(res1 => {
+    if (res1.rows.length>0) {
+      let tmpId = utils.makeid()
+      let que2 = "update users set currentcookie = '" + tmpId + "' where userid='" + res1.rows[0].userid + "';"
+      //console.log("que: " + que2)
+      pool.query(que2)
+      delete res1.rows[0].currentcookie
+      delete res1.rows[0].userpw
+      delete res1.rows[0].lastloggedin
+      res.cookie('state', JSON.stringify(res1.rows[0]))
+      res.status(200).send(res1.rows[0])//redo this line
+      console.log(res1.rows)
+      //dont send the object, set the cookies and send state change!     
+    }
+    else {
+      res.status(201).send('loginus is wrongus')
+      
+    }
+  })
+  .catch(e => console.error(e.stack))
+})
+////
+
 
 app.listen(PORT);

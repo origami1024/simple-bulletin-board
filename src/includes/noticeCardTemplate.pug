@@ -1,15 +1,20 @@
 template(id="noticeCardTemp")
-    div(class="noticeCard col-2 offset-1 border text-center")
-        img(src="assets/moon.png" class="p-1 mb-2 border rounded")
-        h6(class="font-weight-bold") title
-        p(class="cardsText text-justify mb-0 small") Woah. The text
-        p(class="cardsContacts mb-0 d-none") contacts
-        div(class="nCardCategories d-none")
-        div(class="cardCategoriesVis")
-        div(class="auId col-12 small") 4444
-        div(class="container d-flex p-0")
-            div(class="col-2 small p-0 text-left") hits:
-            div(class="hits col-2 badge bg-warning") hits
-        div(class="date0 col-12 small") date
-        div(class="date1 col-12 small") date
-        button(type="button" class="btnSeeMore btn btn-dark btn-sm border" data-toggle="modal" data-target="#oldModal") View Ad
+    div(class="noticeCard border text-center p-2 d-flex")
+        div(class="nCardImg position-relative")
+            img(class="p-2 bg-dark border rounded" src="dist/assets/moon.png" style="width: 25vh; height: 25vh")
+            div(class="px-1 border rounded" style="position: absolute; bottom: 7px; right:8px; background-color: gray;")
+                span(class="small p-0 text-left") hits 
+                span(class="hits badge bg-warning") 0
+        div(class="rounded p-1 border d-flex flex-column" style="width: 35vh; height: 25vh;")
+            h6(class="font-weight-bold p-0 m-0") title
+            p(class="cardsText text-justify mb-0 small" style="flex-grow: 1") Woah. The text
+            p(class="cardsContacts mb-0 d-none") contacts
+            div(class="nCardCategories d-none")
+            div(class="cardCategoriesVis")
+            div()
+                span(class="small") by 
+                a(href="smth?=auId" class="authorLink small") IvanFierce
+            div(class="d-flex")
+                div(class="date0 col-7 small p-0") 2019-02-13
+                div(class="date1 col-4 small p-0") 20:02
+            button(type="button" class="btnSeeMore btn btn-dark btn-sm border" data-toggle="modal" data-target="#oldModal") View Ad

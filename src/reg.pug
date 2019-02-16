@@ -1,0 +1,28 @@
+doctype html
+html(language=en)
+    head
+        title Register new user
+        block externals
+            include includes/externals
+    body
+        block registerContent
+            section(id="registerView" class="regView d-flex border")
+                form(id="regForm" method="GET" class="border p-3 bg-dark rounded mx-auto w-50 mt-3")
+                    h4(class="text-white") Register new user
+                    div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                        input(type="text" name="login" class="form-control form-control-sm" id="usernameInp" required pattern=".{3,}" placeholder="username" title="3 characters minimum")
+                    div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                        input(type="text" name="pw" class="form-control form-control-sm" id="pwInp" required pattern=".{3,}" placeholder="password" title="3 characters minimum")
+                    div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                        input(type="email" name="mail" class="form-control form-control-sm" id="mailInp" placeholder="email")
+                    div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                        textarea(name="about" class="form-control form-control-sm order-3 order-sm-2" id="userAboutInp" required minlength="5" placeholder="user about" style="height:120px; resize: none")
+                    div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
+                        button(type="submit" class="btn btn-dark border btn-block" id="regSubmit")
+                            i(class="fa fa-user-plus" aria-hidden="true")
+                            span() &nbsp;Register
+
+        block footer
+            include includes/footer
+
+        script(src="scripts/reg.js")

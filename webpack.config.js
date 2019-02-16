@@ -14,7 +14,7 @@ const config = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js',
-        publicPath: '/dist' //yolo
+        publicPath: '/dist'
     },
     module: {
         rules: [pug]
@@ -30,6 +30,11 @@ const config = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: 'src/index.pug',
+            inject: false
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'reg.html',
+            template: 'src/reg.pug',
             inject: false
         })
         
