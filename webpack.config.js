@@ -36,6 +36,11 @@ const config = {
             filename: 'reg.html',
             template: 'src/reg.pug',
             inject: false
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'userinfo.html',
+            template: 'src/userinfo.pug',
+            inject: false
         })
         
     ]

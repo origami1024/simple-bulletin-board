@@ -1,19 +1,19 @@
 template(id="noticeCardTemp")
     div(class="noticeCard border text-center p-2 d-flex")
         div(class="nCardImg position-relative")
-            img(class="p-2 bg-dark border rounded" src="dist/assets/moon.png" style="width: 25vh; height: 25vh")
+            img(class="p-2 bg-dark border rounded" src="dist/assets/moon.png" style="width: 27vh; height: 27vh")
             div(class="px-1 border rounded" style="position: absolute; bottom: 7px; right:8px; background-color: gray;")
                 span(class="small p-0 text-left") hits 
                 span(class="hits badge bg-warning") 0
-        div(class="rounded p-1 border d-flex flex-column" style="width: 35vh; height: 25vh;")
+        div(class="rounded p-1 border d-flex flex-column" style="width: 35vh; height: 27vh;")
             h6(class="font-weight-bold p-0 m-0") title
             p(class="cardsText text-justify mb-0 small" style="flex-grow: 1") Woah. The text
             p(class="cardsContacts mb-0 d-none") contacts
             div(class="nCardCategories d-none")
-            div(class="cardCategoriesVis")
+            div(class="cardCategoriesVis" style="line-height:1.2; font-size:0.85rem")
             div()
                 span(class="small") by 
-                a(href="smth?=auId" class="authorLink small") IvanFierce
+                a(href="smth?=auId" class="authorLink small" target="_blank") IvanFierce
             div(class="d-flex")
                 div(class="date0 col-7 small p-0") 2019-02-13
                 div(class="date1 col-4 small p-0") 20:02

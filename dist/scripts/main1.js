@@ -45,8 +45,6 @@ function send(e){
         type: 'POST',
         url: 'new.bat',
         data : formData,
-        //contentType: "multipart/form-data",
-        //cache: false,
         contentType: false,
         processData: false,
         success: function(data) {
@@ -75,7 +73,7 @@ function upd(){
                 clone.querySelectorAll("h6")[0].textContent = x.title
                 clone.querySelectorAll("p")[0].textContent = x.text
                 clone.querySelectorAll("p")[1].textContent = x.contacts
-                clone.querySelectorAll(".authorLink")[0].setAttribute("href", x.author_id)
+                clone.querySelectorAll(".authorLink")[0].setAttribute("href", "/user?id=" + x.author_id)
                 clone.querySelectorAll(".authorLink")[0].textContent = x.auname
                 clone.querySelectorAll(".hits")[0].textContent = x.hits
                 let dat = x.created_on.split('T')

@@ -93,29 +93,41 @@ app.post('/newUser', function(req, res) {
 });
 //
 
-
-
-
 //make new ad, with img
 app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
   //console.log(req.body)
-  //console.log(req.file)
-  //so we got the data and the file here,
-  //now step to put the file into db
-  //req.file.buffer
-  //console.log('oro: ', req.file.buffer)
-  console.log('new.bat: req.body.auName:', req.body.auName)
-  let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories, auname) 
-  VALUES(10001, $1, $2, $3, 0, $4, $5, $6 );`
-  let values = [req.body.title, req.body.text, req.body.contacts, req.file.buffer, req.body.categories.split(','), req.body.auName]
-  pool.query(que, values).then(res1 => {
-    res.send('ok')
-  });
+  //check in cookies, if the c
+  //console.log('cookie: ' + Object.keys(req.cookies))
+  if (typeof req.cookies.state != "undefined") {
+    let tmpCookie = JSON.parse(req.cookies.state)
+    console.log(req.cookies.state)
+    //console.log(Object.keys(req.cookies.state))
+    console.log(tmpCookie.userid)
+    console.log(tmpCookie.cc)//?????
+    //query to check login details
+    let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and usermail='" + tmpCookie.usermail + "';"
+    console.log('new.bat: req.body.auName:', req.body.auName)
+    pool.query(verificationQue).then(res2 =>{
+      if (res2.rows.length>0) {
+        let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories, auname) 
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8);`
+        let values = [tmpCookie.userid, req.body.title, req.body.text, req.body.contacts, 0, req.file.buffer, req.body.categories.split(','), req.body.auName]
+        pool.query(que, values).then(res1 => {
+          res.send('ok')
+        });
+      } else {
+        res.send('cookie or other thingy not verified!')
+      }
+    })
+    
+  } else {
+    res.send('problem with cookies, sry dud')
+  }
 });
 
 //get img from db and save it to file, temporary function
 //need to modify it, to send file back and show it in img src
-app.get('/getImg.bat', function(req, res, next) {
+/*app.get('/getImg.bat', function(req, res, next) {
   let dudu
   pool.query('select pic from notices where ad_id=96 limit 1;',
     function(err, readResult) {
@@ -130,7 +142,7 @@ app.get('/getImg.bat', function(req, res, next) {
     });
     res.json(200, {success: true});
   });
-})
+})*/
 //////getImg.bat end
 
 //get image on id from db and serve it
@@ -143,33 +155,6 @@ app.get('/imgpls', function(req, res, next) {
   });
 })
 //
-
-/*10/02/19
-app.post('/img.bat', function(req, res) {
-  console.log(':body', req.body)
-  //console.log('add a ad:rheaders', req.rawHeaders)
-  //console.log('add a ad:keys', Object.keys(req))
-  var base64Data = req.body.f.replace(/^data:image\/png;base64,/, "");
-
-  require("fs").writeFile("out.png", base64Data, 'base64', function(err) {
-    console.log(err);
-  });
-
-  res.send('okImgRecevied')
-});
-//add new!
-///////////////////
-//NO BINARY VERSION
-app.post('/new.bat', function(req, res) {
-  let que = `INSERT INTO notices(author_id, title, text, contacts, hits) 
-  VALUES(10001, $1, $2, $3, 0 );`
-  let values = [req.body.title, req.body.text, req.body.cont]
-  pool.query(que, values).then(res1 => {
-    res.send('ok')
-  })
-});*/
-//////////////////
-
 
 //hits
 //////////////////
@@ -236,6 +221,7 @@ app.get('/login', function(req, res) {
       delete res1.rows[0].currentcookie
       delete res1.rows[0].userpw
       delete res1.rows[0].lastloggedin
+      res1.rows[0]['cc'] = tmpId
       res.cookie('state', JSON.stringify(res1.rows[0]))
       res.status(200).send(res1.rows[0])//redo this line
       console.log(res1.rows)
@@ -249,6 +235,56 @@ app.get('/login', function(req, res) {
   .catch(e => console.error(e.stack))
 })
 ////
+///view profile of other
+
+//let userinfo = 
+
+app.get('/user', function(req, res) {
+  console.log('client wants to see profile: ' + req.query.id)
+  if (isNaN(req.query.id) == false) {
+    let que = "SELECT username, userabout, created_at, lastloggedin, adslist FROM users where userid='" + req.query.id + "';"
+    pool.query(que)
+    .then(res1 => {
+      if (res1.rows.length>0) {
+        res.send(`<!DOCTYPE html>
+        <html>
+        <head>
+        <title>User Information</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        </head>
+        <body>
+        <section class="d-flex border" id="userInfoView">
+          <div class="border p-3 text-white bg-dark rounded mx-auto w-50 mt-3">
+            <h4 class="">${res1.rows[0].username}</h4>
+            <div>${res1.rows[0].userabout}</div>
+            <div>${res1.rows[0].lastloggedin}</div>
+            <div>${res1.rows[0].created_at}</div>
+            <div>${res1.rows[0].adslist}</div>
+          </div>
+        </section>
+        <footer>
+        <i>I'm a dude, send a nude!?</i>
+        </footer>
+        <!--script(src="scripts/reg.js")-->
+        </body>
+        </html>`)
+        //modify it
+      }
+      else {
+        res.send('User does not exist')
+      }
+    })
+  } else {
+    res.send('user id is wrong')
+  }
+  //res.sendFile(path.join(__dirname, '/../dist/reg.html'));
+});
+///
 
 
 app.listen(PORT);

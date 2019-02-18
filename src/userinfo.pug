@@ -1,0 +1,22 @@
+doctype html
+html(language=en)
+    head
+        title User Information
+        block externals
+            include includes/externals
+    body
+        block userInfo
+            section(id="userInfoView" class="d-flex border")
+                div(class="border p-3 bg-dark rounded mx-auto w-50 mt-3")
+                    h4(class="text-white") Some user
+                    div() User about
+                    div() contacts
+                    div() created at
+                    div() last logged in
+                    div() ads list                    
+                        
+
+        block footer
+            include includes/footer
+
+        //script(src="scripts/reg.js")
