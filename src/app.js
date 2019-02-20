@@ -110,10 +110,16 @@ app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
     pool.query(verificationQue).then(res2 =>{
       if (res2.rows.length>0) {
         let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories, auname) 
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8);`
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ad_id; `// //SELECT currval('notices_ad_id_seq');
         let values = [tmpCookie.userid, req.body.title, req.body.text, req.body.contacts, 0, req.file.buffer, req.body.categories.split(','), req.body.auName]
-        pool.query(que, values).then(res1 => {
-          res.send('ok')
+        pool.query(que,values).then(res1 => { //
+          console.log('STUFF cp1')
+          console.log('seq: ' + res1.rows[0].ad_id)
+          let queX = "update users set adslist=adslist || " + parseInt(res1.rows[0].ad_id) + " where userid=" + parseInt(tmpCookie.userid) + ";"
+          pool.query(queX).then(resX=>{
+            res.send('ok')
+          })
+          
         });
       } else {
         res.send('cookie or other thingy not verified!')
@@ -238,42 +244,116 @@ app.get('/login', function(req, res) {
 ///view profile of other
 
 //let userinfo = 
-
-app.get('/user', function(req, res) {
-  console.log('client wants to see profile: ' + req.query.id)
-  if (isNaN(req.query.id) == false) {
-    let que = "SELECT username, userabout, created_at, lastloggedin, adslist FROM users where userid='" + req.query.id + "';"
-    pool.query(que)
+app.get('/adinfo', function(req, res) {
+  console.log('client wants to see profile: ' + req.query.ad_id)
+  if (typeof req.query.ad_id != "undefined") {
+    pool.query('SELECT ad_id, author_id, title, text, contacts, created_on, hits, categories, auname FROM notices WHERE ad_id=' + parseInt(req.query.ad_id) + ';')
     .then(res1 => {
-      if (res1.rows.length>0) {
-        res.send(`<!DOCTYPE html>
-        <html>
-        <head>
-        <title>User Information</title>
+      //send the template
+      //res1.rows
+      let tmpCategories = ''
+      if (Array.isArray(res1.rows[0].categories)){
+        res1.rows[0].categories.forEach(xxx=>{
+            tmpCategories += `<span class="badge bg-info my-0">${xxx}</span> `
+        })        
+      }
+      res.send(`<html>
+      <head>
+        <title>Ad info</title>
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
         <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        </head>
-        <body>
-        <section class="d-flex border" id="userInfoView">
-          <div class="border p-3 text-white bg-dark rounded mx-auto w-50 mt-3">
-            <h4 class="">${res1.rows[0].username}</h4>
-            <div>${res1.rows[0].userabout}</div>
-            <div>${res1.rows[0].lastloggedin}</div>
-            <div>${res1.rows[0].created_at}</div>
-            <div>${res1.rows[0].adslist}</div>
+      </head>
+      <body>
+      <div class="py-3 rounded bg-dark">
+        <div class="container border">
+          <div class="container position-relative p-0 p-sm-3">
+            <h5 class="oldModalTitle text-white">${res1.rows[0].title}</h5>
           </div>
-        </section>
-        <footer>
-        <i>I'm a dude, send a nude!?</i>
-        </footer>
-        <!--script(src="scripts/reg.js")-->
-        </body>
-        </html>`)
-        //modify it
+          <div class="container pt-1 pt-sm-3 pb-0 mb-0">
+            <img class="oldModalPic" src="imgpls?imgId=${res1.rows[0].ad_id}" alt="${res1.rows[0].title}">
+          </div>
+          <div class="container pt-1 pt-sm-3 pb-0 mb-0">
+            <div class="oldModalText mb-0 pl-2 text-white bg-secondary">${res1.rows[0].text}</div>
+          </div>
+          <div class="container mb-0 d-flex flex-column mt-1 mt-sm-3">
+            <div class="oldModalContacts mb-0 pl-2 order-2 order-sm-1 text-white">${res1.rows[0].contacts}</div>
+          </div>
+          <div class="container mb-0 d-flex flex-column mt-1 mt-sm-3">
+            <div class="oldModalCategories mb-0 pl-2 order-2 order-sm-1 text-white">categories:
+              ${tmpCategories}
+            </div>
+          </div>
+          <div class="container mb-0 d-flex flex-column mt-1 mt-sm-3">
+            <span class="mb-0 text-white">author: 
+              <a class="oldModalAuthor" href="user?id=${res1.rows[0].author_id}" target="_blank">${res1.rows[0].auname}</a>
+            </span>
+            <span class="mb-0 text-white">hits:
+              <span class="oldModalHits mb-0 pl-2 text-light font-weight-bold">${res1.rows[0].hits}
+              </span>
+            </span>
+            <span class="mb-0 text-white">date of creation:</span>
+            <div class="oldModalDate mb-0 pl-2 text-white">${res1.rows[0].created_on}
+            </div>
+          </div>
+        </div>
+      </div>
+      </body>
+      </html>`)
+    })
+    .catch(e => console.error(e.stack))
+  }
+})
+app.get('/user', function(req, res) {
+  console.log('client wants to see profile: ' + req.query.id)
+  if (isNaN(req.query.id) == false) {
+    let que = "SELECT username, userabout, created_at, adslist FROM users where userid='" + req.query.id + "';"
+    pool.query(que)
+    .then(res1 => {
+      if (res1.rows.length>0) {
+        //res1.rows[0].adslist
+        let que2 = "select ad_id, title, hits from notices where ad_id= ANY('{" + res1.rows[0].adslist + "}');"
+        console.log(que2)
+        pool.query(que2)
+        .then(res2 =>{
+          let tmpAdListText = ''
+          res2.rows.forEach(ad=>{
+            tmpAdListText += `<a href="adinfo?ad_id=${ad.ad_id}" target="_blank" class="text-white" style="position: relative; text-decoration: none">
+            <img src="imgpls?imgId=${ad.ad_id}" style="width:75px; height:75px; border:1px solid white;">
+            <span style="position:absolute; left:0; top:28px; font-size:10px" class="small bg-secondary">${ad.title.substring(0,15)}</span>
+            <span class="small bg-secondary rounded border" style="position:absolute; left:0; bottom:36px; font-size:10px"><i class="fa fa-eye"></i> ${ad.hits}</span>
+            </a>`
+            //how do u open this link? i mean, in new window about ad?
+          })
+          res.send(`<!DOCTYPE html>
+            <html>
+            <head>
+            <title>User Information</title>
+            <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css" rel="stylesheet">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
+            <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+            </head>
+            <body>
+            <section class="d-flex border" id="userInfoView">
+              <div class="border p-3 text-white bg-dark rounded mx-auto w-50 mt-3">
+                <h4>${res1.rows[0].username}</h4>
+                <div>${res1.rows[0].userabout}</div>
+                <span>created at: </span>
+                <div>${res1.rows[0].created_at}</div>
+                <span>created ads: </span>
+                <div>${tmpAdListText}</div>
+              </div>
+            </section>
+            </body>
+            </html>`)
+        })
+        
       }
       else {
         res.send('User does not exist')

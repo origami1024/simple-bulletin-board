@@ -2,9 +2,10 @@ template(id="noticeCardTemp")
     div(class="noticeCard border text-center p-2 d-flex")
         div(class="nCardImg position-relative")
             img(class="p-2 bg-dark border rounded" src="dist/assets/moon.png" style="width: 27vh; height: 27vh")
-            div(class="px-1 border rounded" style="position: absolute; bottom: 7px; right:8px; background-color: gray;")
-                span(class="small p-0 text-left") hits 
-                span(class="hits badge bg-warning") 0
+            div(class="px-1 rounded" style="position: absolute; bottom: 7px; right:8px; background-color: white;")
+                span(class="small p-0 text-left")
+                    i(class="fa fa-eye") &nbsp;
+                span(class="hits small") 0
         div(class="rounded p-1 border d-flex flex-column" style="width: 35vh; height: 27vh;")
             h6(class="font-weight-bold p-0 m-0") title
             p(class="cardsText text-justify mb-0 small" style="flex-grow: 1") Woah. The text

@@ -78,15 +78,16 @@ function upd(){
                 clone.querySelectorAll(".hits")[0].textContent = x.hits
                 let dat = x.created_on.split('T')
                 clone.querySelectorAll(".date0")[0].textContent = dat[0]
-                clone.querySelectorAll(".date1")[0].textContent = dat[1]
+                clone.querySelectorAll(".date1")[0].textContent = dat[1].substring(0, 5)
                 $(clone).find(".btnSeeMore").data('adId', x.ad_id)
                 clone.querySelectorAll(".nCardCategories")[0].textContent = x.categories
                 if (Array.isArray(x.categories)){
                     x.categories.forEach(xxx=>{
                         let newTag = document.createElement("span")
                         newTag.textContent = xxx
-                        newTag.classList.add("badge", "bg-info", "mx-1", "my-0")
+                        newTag.classList.add("badge", "bg-info", "my-0")
                         clone.querySelectorAll(".cardCategoriesVis")[0].appendChild(newTag)
+                        newTag.insertAdjacentHTML('afterend', "&nbsp;")
                     })
                     
                 }
@@ -219,9 +220,10 @@ function setGlobalInfo(e){
             $('.oldModalTitle').text($(e.target.parentElement.parentElement).find('h6').text())
             $('.oldModalText').text($(e.target.parentElement.parentElement).find('.cardsText').text())
             $('.oldModalContacts').text($(e.target.parentElement.parentElement).find('.cardsContacts').text())
-            $('.oldModalAuthor').text($(e.target.parentElement.parentElement).find('.auId').text())
+            $('.oldModalAuthor').text($(e.target.parentElement.parentElement).find('.authorLink').text())
+            $('.oldModalAuthor').attr("href", $(e.target.parentElement.parentElement).find('.authorLink').attr("href"))
             $('.oldModalHits').text($(e.target.parentElement.parentElement).find('.hits').text())
-            $('.oldModalDate').text($(e.target.parentElement.parentElement).find('.date0').text() +'___'+ $(e.target.parentElement.parentElement).find('.date1').text())
+            $('.oldModalDate').text($(e.target.parentElement.parentElement).find('.date0').text() +' at '+ $(e.target.parentElement.parentElement).find('.date1').text())
             $('.oldModalCategories').empty()
             let tmp = $(e.target.parentElement.parentElement).find('.nCardCategories').text().split(',')
             tmp.forEach(x=>{
@@ -242,7 +244,7 @@ $(document).on("click touch", '.btnSeeMore', function(e) {
 
 function hit(e){    
     let id = $(e.target).data('adId')
-    console.log(id)
+    console.log('ad_id: ' + id)
     let tmp = $(e.target.parentElement.parentElement).find('.hits').text()
     $(e.target.parentElement.parentElement).find('.hits').text(parseInt(tmp) + 1);
     
