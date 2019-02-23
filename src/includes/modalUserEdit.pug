@@ -1,0 +1,46 @@
+div(class="py-3 rounded modal fade" role="dialog" tabindex="-1" id="profileEditModal")
+  div(class="modal-dialog" role="document")
+    div(class="modal-content border bg-dark p-3 text-white")
+      div(class="modal-header position-relative p-0 p-sm-3")
+        h5(class="profileModalTitle") User: 0rigami(id:331)
+        button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+          span(class="text-white") &times;
+      div(id="loader" style="width: 30px;height: 30px;border-radius: 50%;border: 4px dotted black;display:none;position: absolute;left: 50%;bottom: 50%;")
+      div(class="container pt-1 pt-sm-3 pb-0 mb-0")
+        span(id="userEdit__mailField") user@mail.org
+      div(class="container pt-1 pt-sm-3 pb-0 mb-0")
+        input(type="button" class="btn btn-dark btn-sm border" data-toggle="collapse" data-target="#pwChangeAccordion" value="change password")
+        div(id="pwChangeAccordion" class="collapse pt-1")
+          input(type="text" required pattern=".{3,}" id="userEdit__oldPW" class="small mb-1 mr-1 px-1" placeholder="enter your old password")
+          br
+          input(type="text" required pattern=".{3,}" id="userEdit__newPW" class="small mb-1 mr-1 px-1" placeholder="enter your new password")
+          br
+          input(type="button" class="btn btn-primary btn-sm" id="userEdit__changePWBtn" value="change!")
+      div(class="container pt-1 pt-sm-3 pb-0 mb-0")
+        input(type="button" class="btn btn-dark btn-sm border" data-toggle="collapse" data-target="#changeAboutAccordion" value="change user description")
+        div(id="changeAboutAccordion" class="collapse pt-1")
+          label(for="userEdit__about" class="small my-0 py-0") User description:
+          textarea(class="w-100 px-1 small" id="userEdit__about" placeholder="user self description")
+          input(type="button" class="btn btn-primary btn-sm" id="userEdit__changeAboutBtn" value="change!")
+      div(class="container mt-1 pt-sm-3 mb-1 mb-0")
+        span(class="mb-0") date of acc creation: 
+        span(id="userEdit__dateField") 33/03/1990
+      div(class="container pt-1 pt-sm-3 pb-0 mb-0 userEditContactsBox")
+        div(class="text-white border" id="userEdit__contactsView")
+            
+        div(class="userEdit__contactsSome mt-1")
+          input(type="button" class="btn btn-dark btn-sm border" data-toggle="collapse" data-target="#userEdit__addContacts" id="userEdit__addContactsBtn" value="change contacts")
+        
+        div(id="userEdit__addContacts" class="collapse pt-1 border mt-2")
+          div(class="userEdit__inputPart mt-1")
+            label(for="userEdit__cProp" class="text-white")
+            input(type="text" id="userEdit__cProp" class="small mr-1" required pattern=".{3,}" placeholder="tel")
+            label(for="userEdit__cVal" class="text-white")
+            input(type="text" id="userEdit__cVal" class="small mr-1" required pattern=".{3,}" placeholder="333-444-666")
+            input(type="button" class="btn btn-primary btn-sm" id="userEdit__addToContactsObj" value="add!")
+          div()
+            input(type="button" class="btn btn-primary btn-sm" id="userEdit__submit" value="submit!")
+            
+      div(class="container") created ads:    
+      div(class="container pt-1 pt-sm-3 pb-0 mb-0 userEditAdsBox")
+        

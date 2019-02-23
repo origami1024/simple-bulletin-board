@@ -80,10 +80,10 @@ app.get('/refresh.bat', function(req, res) {
 
 //register new user
 app.post('/newUser', function(req, res) {
-  console.log('NEW USER!!!')
-  console.log('login: ' + req.body.login)
+  console.log('NEW USER: ' + req.body.login)
   let que = `INSERT INTO users(userName, userMail, userPW, userAbout) 
   VALUES($1, $2, $3, $4);`
+  //check all these values to not be empty and of certain length and with permitted characters
   let values = [req.body.login, req.body.mail, req.body.pw, req.body.about]
   console.log(values)
   pool.query(que, values).then(res1 => {
@@ -91,19 +91,14 @@ app.post('/newUser', function(req, res) {
   });
   //res.sendFile(path.join(__dirname, '/../dist/index.html'));
 });
-//
 
 //make new ad, with img
 app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
-  //console.log(req.body)
-  //check in cookies, if the c
-  //console.log('cookie: ' + Object.keys(req.cookies))
   if (typeof req.cookies.state != "undefined") {
     let tmpCookie = JSON.parse(req.cookies.state)
-    console.log(req.cookies.state)
-    //console.log(Object.keys(req.cookies.state))
-    console.log(tmpCookie.userid)
-    console.log(tmpCookie.cc)//?????
+    //console.log(req.cookies.state)
+    //console.log(tmpCookie.userid)
+    //console.log(tmpCookie.cc)//?????
     //query to check login details
     let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and usermail='" + tmpCookie.usermail + "';"
     console.log('new.bat: req.body.auName:', req.body.auName)
@@ -342,11 +337,15 @@ app.get('/user', function(req, res) {
             <body>
             <section class="d-flex border" id="userInfoView">
               <div class="border p-3 text-white bg-dark rounded mx-auto w-50 mt-3">
-                <h4>${res1.rows[0].username}</h4>
-                <div>${res1.rows[0].userabout}</div>
-                <span>created at: </span>
-                <div>${res1.rows[0].created_at}</div>
-                <span>created ads: </span>
+                <span class="small">user: </span>
+                <h4 class="pl-2">${res1.rows[0].username}</h4>
+                <span class="small mt-3">user about: </span>
+                <div class="bg-secondary pl-2">${res1.rows[0].userabout}</div>
+                <br>
+                <span class="small">created at: </span>
+                <div class="pl-2">${res1.rows[0].created_at}</div>
+                <br>
+                <span class="small">created ads: </span>
                 <div>${tmpAdListText}</div>
               </div>
             </section>
@@ -366,5 +365,20 @@ app.get('/user', function(req, res) {
 });
 ///
 
+///contacts update
+app.post('/cUpd', function(req, res) {
+  //console.log('cUpd: ' + Object.keys(req.body))
+  //console.log('stringy: ' + JSON.stringify(req.body))
+  let tmpCookie = JSON.parse(req.cookies.state)
+  //console.log('cookie state: ' + tmpCookie)
+  let que = `UPDATE users SET contacts=\'${JSON.stringify(req.body)}\' where currentcookie='${tmpCookie.cc}' and userid='${tmpCookie.userid}';`
+  console.log(que)
+  pool.query(que)
+  .then(res1=>{
+    tmpCookie.contacts = req.body
+    //console.log(tmpCookie)
+    res.cookie('state', JSON.stringify(tmpCookie)).send('ok')
+  })
+})
 
 app.listen(PORT);

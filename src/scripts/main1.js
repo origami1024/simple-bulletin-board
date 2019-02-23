@@ -1,8 +1,11 @@
 let datalastId = 0
-let globalTitle = 'Orror hor'
+
 
 let state = {
-    login: false
+    login: false,
+    data: {
+        contacts: {}
+    }
 }
 ////UTILS PART
 //import hashCode from './utils'
@@ -102,17 +105,31 @@ function upd(){
 }
 
 function stateLogin(){
-    state.login = true
+    state.login = true    
     $(".logoutPart").removeClass("d-none")
-    $(".loginPart").toggleClass('d-flex').hide(0)//.addClass("d-none")
-    //$(".registerControl").addClass("d-none")
+    $(".loginPart").toggleClass('d-flex').hide(0)
     $(".registerControl").hide(0)
     $(".uc__statusBadge").text("logged in")
     $(".uc__statusBadge").removeClass("bg-warning")
     $(".uc__statusBadge").addClass("bg-success")
     $("#uc__btnProfile").text('Profile: ' + state.data.username)
     $('#uc__btnProfile').prop('disabled', false)
-    $('#modalToggle').prop('disabled', false)
+    $('#modalToggle').prop('disabled', false)    
+    if (state.data.contacts == null) {
+        state.data.contacts = {}
+    }
+    $('.profileModalTitle').text(`User: ${state.data.username}(id:${state.data.userid})`)
+    $('#userEdit__mailField').text(`Inner email: ${state.data.usermail}`)
+    $('#userEdit__about').text(state.data.userabout)
+    let dat = state.data.created_at.split('T')
+    $('#userEdit__dateField').text(`${dat[0]} ${dat[1].substring(0,5)}`)
+    uEdit__refreshFromContactsObj()
+    $('#userEdit__contactsView').find('.contactsRemoveBtn').hide()
+    //adlist 
+    /*let tmpAdListText = '' */
+    //show the list
+    //delete buttons
+    //editing maybe in future versions????
 }
 function stateLogout(){
     state.login = false
@@ -126,6 +143,9 @@ function stateLogout(){
     $("#uc__btnProfile").text("Profile: None")
     $('#uc__btnProfile').prop('disabled', true)
     $('#modalToggle').prop('disabled', true)
+    state.data.contacts = {}
+    $('.profileModalTitle').text(`User: None(id:None)`)
+    $('#userEdit__mailField').text(`Inner email: None`)
 }
 function login(e){
     e.preventDefault();
@@ -138,14 +158,14 @@ function login(e){
         },
         statusCode: {
             200: function(data) {
-            console.log(data)
-            console.log(200)
-            state.data = JSON.parse(getCookie("state")) 
+            //console.log(data)
+            //console.log(200)
+            state.data = JSON.parse(getCookie("state"))
             stateLogin()
             },
             201: function(data) {
-            console.log(data)
-            console.log(201)
+            //console.log(data)
+            //console.log(201)
             }
         }
     })
@@ -213,7 +233,6 @@ theForm.addEventListener("submit", send);
 //initNotices.addEventListener("click", sendInit);
 //picInp.addEventListener("change", getBase64);
 function setGlobalInfo(e){
-    globalTitle = 'the durpest'
     if (e.target.nodeName == 'BUTTON'){
         if (e.target.parentElement.parentElement.classList.contains('noticeCard')) {
             $('.oldModalPic').attr('src', $(e.target.parentElement.parentElement).find('img').attr('src') )
@@ -232,7 +251,7 @@ function setGlobalInfo(e){
         }
     }
     else {
-        globalTitle = 'errorest! no buttone'
+        
     }
 }
 
@@ -261,3 +280,79 @@ function hit(e){
     xhr.send();    
     
 }
+
+//manage contactsObj
+//when user is logged in
+//load that obj on login or cookie check
+
+function uEdit__addToContactsObj(){
+    if ((userEdit__cProp.value.length>2) && (userEdit__cVal.value.length>2)) {
+        state.data.contacts[userEdit__cProp.value] = userEdit__cVal.value
+        userEdit__cProp.value = ''
+        userEdit__cVal.value = ''
+    }
+    //refresh the 
+}
+function uEdit__refreshFromContactsObj(){
+    $('#userEdit__contactsView').empty()
+    
+    for (let key in state.data.contacts) {
+        //console.log(key)
+        //key
+        //state.contactsObj[key]
+        /*span() contact 1 : lalala2
+        
+              input(type="button" class="btn btn-primary btn-sm contactsRemoveBtn" value="remove!") */
+        $('#userEdit__contactsView').append(`<div>${key} : ${state.data.contacts[key]} <button data-key=${key} class='btn btn-danger btn-sm contactsRemoveBtn p-1' style='font-size:13px;line-height:1'><i class="fa fa-trash"></i></button></div>`)
+    }
+}
+function uEdit__removeSelf(key){
+    if (typeof state.data.contacts[key] != 'undefined'){
+        delete state.data.contacts[key]
+    }
+}
+
+$(document).on("click touch", "#userEdit__addToContactsObj", e =>{
+    uEdit__addToContactsObj()
+    uEdit__refreshFromContactsObj()
+    $('#userEdit__cProp').focus()
+})
+$(document).on("click touch", ".contactsRemoveBtn", e =>{
+    uEdit__removeSelf(e.target.dataset.key)
+    uEdit__refreshFromContactsObj()
+})
+$(document).on("click touch", "#userEdit__submit", e =>{
+    //send to fucks?
+    //server checks cookies, if ok then puts it in db
+    $.ajax({
+        type: 'POST',
+        url: 'cUpd',
+        data : state.data.contacts,
+        success: function(data) {
+            console.log('contacts success')
+        },
+        error: function(data){
+            console.log('contacts fail')
+        }
+    })
+})
+
+$(document).on("click touch", "#userEdit__addContactsBtn", e =>{
+    $('.contactsRemoveBtn').toggle(250)
+})
+$('#userEdit__cVal').on("keypress", e => {
+    if (e.which === 13) {
+        $(this).attr("disabled", "disabled");
+        uEdit__addToContactsObj()
+        uEdit__refreshFromContactsObj()
+        $('#userEdit__cProp').focus()
+        $(this).removeAttr("disabled");
+    }
+})
+//$('#userEdit__contactsView').find('.contactsRemoveBtn').show()
+    //$('.contactsRemoveBtn').show(100)
+    //console.log('sss')
+
+//1. submit
+//2. load on login? unload on logout?
+//3. show contacts in ad creation

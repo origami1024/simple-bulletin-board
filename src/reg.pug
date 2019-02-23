@@ -7,7 +7,7 @@ html(language=en)
     body
         block registerContent
             section(id="registerView" class="regView d-flex border")
-                form(id="regForm" method="GET" class="border p-3 bg-dark rounded mx-auto w-50 mt-3")
+                form(id="regForm" method="POST" class="border p-3 bg-dark rounded mx-auto w-50 mt-3")
                     h4(class="text-white") Register new user
                     div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
                         input(type="text" name="login" class="form-control form-control-sm" id="usernameInp" required pattern=".{3,}" placeholder="username" title="3 characters minimum")
@@ -21,6 +21,7 @@ html(language=en)
                         button(type="submit" class="btn btn-dark border btn-block" id="regSubmit")
                             i(class="fa fa-user-plus" aria-hidden="true")
                             span() &nbsp;Register
+                    a(href="./" class="btn btn-dark border mt-3 float-right") back to main
 
         block footer
             include includes/footer

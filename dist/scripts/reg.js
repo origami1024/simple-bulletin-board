@@ -1,4 +1,3 @@
-
 //utils
 const hashCode = function(string) {
   let hash = 0;
@@ -13,9 +12,7 @@ const hashCode = function(string) {
   return hash;
 }
 //
-
 function reg(e){
-  //console.log('trolo')
   e.preventDefault();
   $.ajax({
     type: 'POST',
@@ -29,13 +26,12 @@ function reg(e){
     success: function(data) {
       console.log(data)
       if (data == "ok"){
-        window.location.href = "/";
-        //maybe do automatic login too here
+        //window.location.href = "/";
+        //maybe do automatic login here
       }
     }
   })
-  
 }
 
 
-$("#regSubmit").on("click", reg)
+$("#regSubmit").on("submit click", reg)
