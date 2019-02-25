@@ -81,10 +81,10 @@ app.get('/refresh.bat', function(req, res) {
 //register new user
 app.post('/newUser', function(req, res) {
   console.log('NEW USER: ' + req.body.login)
-  let que = `INSERT INTO users(userName, userMail, userPW, userAbout) 
-  VALUES($1, $2, $3, $4);`
+  let que = `INSERT INTO users(userName, userMail, userPW, userAbout, adslist) 
+  VALUES($1, $2, $3, $4, $5);`
   //check all these values to not be empty and of certain length and with permitted characters
-  let values = [req.body.login, req.body.mail, req.body.pw, req.body.about]
+  let values = [req.body.login, req.body.mail, req.body.pw, req.body.about, '{}']
   pool.query(que, values).then(res1 => {
     res.send('ok')
   });
