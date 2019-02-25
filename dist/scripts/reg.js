@@ -26,7 +26,7 @@ function reg(e){
     success: function(data) {
       console.log(data)
       if (data == "ok"){
-        //window.location.href = "/";
+        window.location.href = "/";
         //maybe do automatic login here
       }
     }

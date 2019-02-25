@@ -59,7 +59,7 @@ app.get('/scripts/reg.js', function(req, res) {
   res.sendFile(path.join(__dirname, '/../dist/scripts/reg.js'));
 });
 app.get('/reg', function(req, res) {
-  console.log('client wants register')
+  console.log('register')
   res.sendFile(path.join(__dirname, '/../dist/reg.html'));
 });
 
@@ -85,7 +85,6 @@ app.post('/newUser', function(req, res) {
   VALUES($1, $2, $3, $4);`
   //check all these values to not be empty and of certain length and with permitted characters
   let values = [req.body.login, req.body.mail, req.body.pw, req.body.about]
-  console.log(values)
   pool.query(que, values).then(res1 => {
     res.send('ok')
   });
@@ -96,9 +95,6 @@ app.post('/newUser', function(req, res) {
 app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
   if (typeof req.cookies.state != "undefined") {
     let tmpCookie = JSON.parse(req.cookies.state)
-    //console.log(req.cookies.state)
-    //console.log(tmpCookie.userid)
-    //console.log(tmpCookie.cc)//?????
     //query to check login details
     let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and usermail='" + tmpCookie.usermail + "';"
     console.log('new.bat: req.body.auName:', req.body.auName)
@@ -108,11 +104,13 @@ app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
         VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ad_id; `// //SELECT currval('notices_ad_id_seq');
         let values = [tmpCookie.userid, req.body.title, req.body.text, req.body.contacts, 0, req.file.buffer, req.body.categories.split(','), req.body.auName]
         pool.query(que,values).then(res1 => { //
-          console.log('STUFF cp1')
-          console.log('seq: ' + res1.rows[0].ad_id)
           let queX = "update users set adslist=adslist || " + parseInt(res1.rows[0].ad_id) + " where userid=" + parseInt(tmpCookie.userid) + ";"
           pool.query(queX).then(resX=>{
-            res.send('ok')
+            let tmpCookie = JSON.parse(req.cookies.state)
+            tmpCookie.adslist.push(res1.rows[0].ad_id)
+            tmpCookie.adsListX.push({ad_id: res1.rows[0].ad_id, hits: 0, title: req.body.title})
+            res.cookie('state', JSON.stringify(tmpCookie))
+            res.send({ad_id: res1.rows[0].ad_id})
           })
           
         });
@@ -126,33 +124,17 @@ app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
   }
 });
 
-//get img from db and save it to file, temporary function
-//need to modify it, to send file back and show it in img src
-/*app.get('/getImg.bat', function(req, res, next) {
-  let dudu
-  pool.query('select pic from notices where ad_id=96 limit 1;',
-    function(err, readResult) {
-    console.log('err',err,'pg readResult',readResult);
-    console.log('URFU')
-    console.log(readResult.rows[0].pic)
-    dudu = readResult.rows[0].pic
-    console.log('smurfu')
-    console.log(dudu)
-    fs.writeFile('fooq.png', dudu, function (err) {
-      if (err) console.log(err);
-    });
-    res.json(200, {success: true});
-  });
-})*/
-//////getImg.bat end
-
 //get image on id from db and serve it
 app.get('/imgpls', function(req, res, next) {
   //console.log("imgId", req.query.imgId)
   pool.query('select pic from notices where ad_id=' + req.query.imgId + ' limit 1;',
     function(err, readResult) {
-    //console.log(readResult.rows[0].pic)
-    res.send(readResult.rows[0].pic)
+    //console.log(readResult.rowCount)
+    if (readResult.rowCount>0){
+      res.send(readResult.rows[0].pic)
+    } else {
+      res.send('no pic in db dude, lol')
+    }
   });
 })
 //
@@ -202,7 +184,7 @@ app.get('/init.bat', function(req, res1) {
 app.get('/logout', function(req, res) {
   res.cookie('state', '', {expires: new Date(0)});
   res.end()
-  console.log('logout')
+  console.log('/logout')
   //need to delete more cookies
   //also need to send back that app state should update
 })
@@ -222,11 +204,19 @@ app.get('/login', function(req, res) {
       delete res1.rows[0].currentcookie
       delete res1.rows[0].userpw
       delete res1.rows[0].lastloggedin
-      res1.rows[0]['cc'] = tmpId
-      res.cookie('state', JSON.stringify(res1.rows[0]))
-      res.status(200).send(res1.rows[0])//redo this line
-      console.log(res1.rows)
-      //dont send the object, set the cookies and send state change!     
+      //we got id for pic, also title and hits 
+      let que3 = "select ad_id, title, hits from notices where ad_id= ANY('{" + res1.rows[0].adslist + "}');"
+      pool.query(que3)
+      .then(res2 =>{
+        //console.log('res2 == = = = =:' + res2.rows)
+        res1.rows[0].adsListX = res2.rows
+        res1.rows[0]['cc'] = tmpId
+        res.cookie('state', JSON.stringify(res1.rows[0]))
+        res.status(200).send(res1.rows[0])//redo this line
+        //console.log(res1.rows)
+        //dont send the object, set the cookies and send state change!    
+      })
+       
     }
     else {
       res.status(201).send('loginus is wrongus')
@@ -240,7 +230,7 @@ app.get('/login', function(req, res) {
 
 //let userinfo = 
 app.get('/adinfo', function(req, res) {
-  console.log('client wants to see profile: ' + req.query.ad_id)
+  console.log('client wants to see ad: ' + req.query.ad_id)
   if (typeof req.query.ad_id != "undefined") {
     pool.query('SELECT ad_id, author_id, title, text, contacts, created_on, hits, categories, auname FROM notices WHERE ad_id=' + parseInt(req.query.ad_id) + ';')
     .then(res1 => {
@@ -311,7 +301,6 @@ app.get('/user', function(req, res) {
       if (res1.rows.length>0) {
         //res1.rows[0].adslist
         let que2 = "select ad_id, title, hits from notices where ad_id= ANY('{" + res1.rows[0].adslist + "}');"
-        console.log(que2)
         pool.query(que2)
         .then(res2 =>{
           let tmpAdListText = ''
@@ -367,18 +356,93 @@ app.get('/user', function(req, res) {
 
 ///contacts update
 app.post('/cUpd', function(req, res) {
-  //console.log('cUpd: ' + Object.keys(req.body))
-  //console.log('stringy: ' + JSON.stringify(req.body))
   let tmpCookie = JSON.parse(req.cookies.state)
-  //console.log('cookie state: ' + tmpCookie)
   let que = `UPDATE users SET contacts=\'${JSON.stringify(req.body)}\' where currentcookie='${tmpCookie.cc}' and userid='${tmpCookie.userid}';`
-  console.log(que)
   pool.query(que)
   .then(res1=>{
     tmpCookie.contacts = req.body
-    //console.log(tmpCookie)
     res.cookie('state', JSON.stringify(tmpCookie)).send('ok')
   })
 })
+
+//delete ad
+app.post('/delAd', function(req, res){
+  //check cookie and if he created that ad
+  if (typeof req.cookies.state != "undefined") {
+    //check the provided cookie in users and corresponded ad in the list of ads
+    let tmpCookie = JSON.parse(req.cookies.state)
+    let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and '" + req.body.ad_id + "'=ANY(adslist);"
+    pool.query(verificationQue)
+    .then(res1=>{
+      if (res1.rows.length>0){
+        let noticesDeletionQue = "delete from notices where ad_id='" + req.body.ad_id + "'; "
+        let usersDeletionQue = `update users set adslist = array_remove(adslist, '${parseInt(req.body.ad_id)}') where userid=${res1.rows[0].userid};`
+        pool.query(noticesDeletionQue)
+        .then(res2=>{
+          pool.query(usersDeletionQue)
+          .then(res3=>{})
+          let tmpCookie = JSON.parse(req.cookies.state)
+          let index = tmpCookie.adslist.indexOf(res1.rows[0].ad_id);
+          if (index > -1) {
+            tmpCookie.adslist.splice(index, 1);
+          }
+          tmpCookie.adsListX = tmpCookie.adsListX.filter(function(elem){
+            return elem.ad_id != req.body.ad_id
+          })
+          res.cookie('state', JSON.stringify(tmpCookie))
+          res.status(200).send('ok')
+          //change cookies too
+        })
+      }
+    })
+  }
+})
+
+//change pw
+app.post('/pwChange', function(req, res) {
+  console.log('pw change ' + req.body.hash1 + ' ' + req.body.hash2)
+  if (typeof req.cookies.state != "undefined") {
+    let tmpCookie = JSON.parse(req.cookies.state)
+    let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and userpw='" + req.body.hash1 + "';"
+    console.log(verificationQue)
+    pool.query(verificationQue)
+    .then(res1 => {
+      if (res1.rows.length>0){
+        let que1 = `update users set userpw='${req.body.hash2}' where userid='${res1.rows[0].userid}';`
+        pool.query(que1)
+        .then(res2=>{
+          res.status(200).send('ok')
+        })
+      } else {
+        console.log('wrong passworduz')
+        res.status(200).send('fail')
+      }
+    })
+  }
+})
+
+//change user about
+app.post('/abCh', function(req, res) {
+  console.log('user about change: ' + req.body.about)
+  if (typeof req.cookies.state != "undefined") {
+    let tmpCookie = JSON.parse(req.cookies.state)
+    let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and userid='" + tmpCookie.userid + "';"
+    pool.query(verificationQue)
+    .then(res1 => {
+      if (res1.rows.length>0){
+        //console.log('good so far')
+        let que1 = `update users set userabout='${req.body.about}' where userid='${res1.rows[0].userid}';`
+        //do cookie too at sending
+        pool.query(que1)
+        .then(res2=>{
+          tmpCookie.userabout = req.body.about
+          res.cookie('state', JSON.stringify(tmpCookie))
+          res.status(200).send('ok')
+        })
+      }
+    })
+  }
+})
+
 
 app.listen(PORT);

@@ -44,6 +44,8 @@ function send(e){
     e.preventDefault();
     let formData = new FormData(document.querySelector('#theForm'))
     formData.append('auName', state.data.username)
+    let tmpTitle = $('#titleInp').val()
+    console.log(tmpTitle)
     $.ajax({
         type: 'POST',
         url: 'new.bat',
@@ -51,8 +53,19 @@ function send(e){
         contentType: false,
         processData: false,
         success: function(data) {
-            console.log(data)
+            //console.log('cp33' + data.ad_id)
+            console.log('succses')
+            state.data.adslist.push(parseInt(data.ad_id))
+            state.data.adsListX.push({ad_id:parseInt(data.ad_id), hits:0, title: tmpTitle})
+            tmpAdListText = `<span style="position:relative"><a href="adinfo?ad_id=${data.ad_id}" target="_blank" class="text-white" style="position: relative; text-decoration: none">
+            <img src="imgpls?imgId=${parseInt(data.ad_id)}" style="width:75px; height:75px; border:1px solid white;">
+            <span style="position:absolute; left:0; bottom:-30px; font-size:10px" class="small bg-secondary">${tmpTitle.substring(0,15)}</span>
+            <span class="small bg-secondary rounded border" style="position:absolute; left:0; top:-30px; font-size:10px"><i class="fa fa-eye"></i> ${0}</span>
+            </a>
+            <button data-ad_id=${parseInt(data.ad_id)} class="btn btn-sm btn-danger border px-1 py-0 btnDeleteAd" style="position:absolute; right:3px; top:-30px;"><i class="fa fa-trash"></i></button></span>`
+            $('.userEditAdsBox').append(tmpAdListText)
         }
+        
     })
     titleInp.value = ''
     textInp.value = ''
@@ -130,6 +143,22 @@ function stateLogin(){
     //show the list
     //delete buttons
     //editing maybe in future versions????
+    let tmpAdListText = ''
+    state.data.adsListX.forEach(ad=>{
+        // console.log(ad.ad_id)
+        // console.log(ad.title)
+        // console.log(ad.hits)
+        tmpAdListText += `<span style="position:relative"><a href="adinfo?ad_id=${ad.ad_id}" target="_blank" class="text-white" style="position: relative; text-decoration: none">
+            <img src="imgpls?imgId=${ad.ad_id}" style="width:75px; height:75px; border:1px solid white;">
+            <span style="position:absolute; left:0; bottom:-30px; font-size:10px" class="small bg-secondary">${ad.title.substring(0,15)}</span>
+            <span class="small bg-secondary rounded border" style="position:absolute; left:0; top:-30px; font-size:10px"><i class="fa fa-eye"></i> ${ad.hits}</span>
+            </a>
+            <button data-ad_id=${ad.ad_id} class="btn btn-sm btn-danger border px-1 py-0 btnDeleteAd" style="position:absolute; right:3px; top:-30px;"><i class="fa fa-trash"></i></button></span>`
+    })
+    $('.userEditAdsBox').empty()
+    $('.userEditAdsBox').append(tmpAdListText)
+    //send/modify additional data in cookies about ads of the user
+
 }
 function stateLogout(){
     state.login = false
@@ -349,10 +378,99 @@ $('#userEdit__cVal').on("keypress", e => {
         $(this).removeAttr("disabled");
     }
 })
-//$('#userEdit__contactsView').find('.contactsRemoveBtn').show()
-    //$('.contactsRemoveBtn').show(100)
-    //console.log('sss')
 
-//1. submit
-//2. load on login? unload on logout?
-//3. show contacts in ad creation
+$(document).on("click touch", ".btnDeleteAd", e =>{
+    console.log('delete ad')
+    let elemento
+    if ($(e.target).is('button')) {
+        elemento = e.target
+    }
+    else {
+        elemento = e.target.parentElement
+    }
+    //console.log('cp1' + elemento.dataset.ad_id)
+    state.data.adslist = state.data.adslist.filter(function(elem){
+        return elem != elemento.dataset.ad_id; 
+    })
+    state.data.adsListX = state.data.adsListX.filter(function(elem){
+        //console.log(elem.ad_id)
+        //console.log(elemento.dataset.ad_id)
+        return parseInt(elem.ad_id) != parseInt(elemento.dataset.ad_id); 
+    })
+    
+    //send request about deletion to server
+    $.ajax({
+        type: 'POST',
+        url: 'delAd',
+        data: {'ad_id': elemento.dataset.ad_id},
+        success: function(data) {
+            console.log('delAd success')
+        },
+        error: function(data){
+            console.log('delAd fail')
+        }
+
+    })
+    $(elemento.parentElement).remove()
+})
+
+let degrees = 0
+function userEdit__changePW(){
+    let oldPW = $('#userEdit__oldPW').val()
+    let newPW = $('#userEdit__newPW').val()
+    let re = /(^[a-zA-Z\d]{3,20}$)/
+    
+    var intervalId = setInterval(function(){
+        $('#loader').css({'transform' : 'rotate('+ degrees +'deg)'});
+        degrees += 2
+    },150)
+    if (re.test(oldPW) && re.test(newPW)) {
+        $('#loader').removeClass('d-none')
+        $.ajax({
+            type: 'POST',
+            url: 'pwChange',
+            data: {hash1: hashCode(oldPW), hash2: hashCode(newPW)},
+            success: function(data) {
+                
+                if (data=='ok') {
+                    console.log('pw change success')
+                    $('#userEdit__oldPW').val('')
+                    $('#userEdit__newPW').val('')
+                    $('#pwChangeAccordion').collapse("hide")
+                } else {
+                    console.log('pw change wrong pw')
+                }
+                clearInterval(intervalId)
+                $('#loader').addClass('d-none')
+            },
+            error: function(data){
+                clearInterval(intervalId)
+                $('#loader').addClass('d-none')
+            }
+        })
+    }
+
+}
+function userEdit__changeAbout(){
+    let newAbout = $('#userEdit__about').val()
+    if (newAbout != state.data.userabout) {
+        $.ajax({
+            type: 'POST',
+            url: 'abCh',
+            data: {about: newAbout},
+            success: function(data) {
+
+            },
+            error: function(data){}
+        })
+    } else {
+        alert('userabout stays the same')
+    }
+}
+
+$('#userEdit__changePWBtn').on("click touch", e => {
+    userEdit__changePW()
+})
+$('#userEdit__changeAboutBtn').on("click touch", e => {
+    userEdit__changeAbout()
+})
