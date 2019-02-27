@@ -16,8 +16,25 @@ div(class="py-3 rounded modal fade" role="dialog" tabindex="-1" id="myModal")
                     label(for="textInp" class="mb-0 pl-2 order-2 order-sm-1 text-white") Ad description
                     textarea(class="form-control form-control-sm order-3 order-sm-2" name="text" id="textInp" required minlength="5" placeholder="Description")
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
-                    label(for="contactsInp" class="mb-0 pl-2 text-white") Contacts//pick from info in profile
-                    input(type="text" class="form-control form-control-sm" name="contacts" id="contactsInp" required pattern=".{3,}" placeholder="Contacts" title="3 characters minimum")
+                    span(class="m-0 p-0 pl-2 text-white") Contacts:
+                    div(class="pb-0 m-0 mt-1 newAd__ContactsBox")
+                        div(class="text-white rounded p-1 border" id="newAd__contactsView")   
+
+                        div(class="newAd__contactsSome mt-1")
+                            input(type="button" class="btn btn-dark btn-sm border" data-toggle="collapse" data-target="#newAd__addContacts" id="newAd__addContactsBtn" value="add contacts")
+                        
+                        div(id="newAd__addContacts" class="collapse pt-1 border mt-2")
+                            div(class="newAd__inputPart d-flex p-1")
+                                div(class="col-4 p-0 m-0")
+                                    label(for="newAd__cProp" class="small text-white mt-0 mb-1") type of contact
+                                    br
+                                    input(type="text" id="newAd__cProp" class="w-100 small mr-1" placeholder="ex.: tel, mail, location")
+                                div(class="col-6")
+                                    label(for="newAd__cVal" class="text-white mb-1 mt-0 small") value of contact
+                                    br
+                                    input(type="text" id="newAd__cVal" class="w-100 small mr-1" placeholder="ex.: 3242343, aaa@bbb.ccc")
+                                input(type="button" class="btn btn-primary btn-sm" id="newAd__addToContactsObj" value="add!")
+
                 div(class="form-group pt-1 pt-sm-3 pb-0 mb-0")
                     label(for="categoriesInp" class="mb-0 pl-2 text-white") Categories
                     input(type="text" class="form-control form-control-sm" name="categories" id="categoriesInp" maxlength="20")

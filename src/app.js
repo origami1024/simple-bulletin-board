@@ -97,12 +97,13 @@ app.post('/new.bat', upload.single('picInp'), function (req, res, next) {
     let tmpCookie = JSON.parse(req.cookies.state)
     //query to check login details
     let verificationQue = "select userid from users where currentcookie='" + tmpCookie.cc + "' and usermail='" + tmpCookie.usermail + "';"
-    console.log('new.bat: req.body.auName:', req.body.auName)
+    console.log('new.bat: req.body.contactsObj:' + JSON.stringify(req.body.contactsObj))
     pool.query(verificationQue).then(res2 =>{
       if (res2.rows.length>0) {
         let que = `INSERT INTO notices(author_id, title, text, contacts, hits, pic, categories, auname) 
         VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ad_id; `// //SELECT currval('notices_ad_id_seq');
-        let values = [tmpCookie.userid, req.body.title, req.body.text, req.body.contacts, 0, req.file.buffer, req.body.categories.split(','), req.body.auName]
+        //req.body.contacts = 'tmplalala'
+        let values = [tmpCookie.userid, req.body.title, req.body.text, req.body.contactsObj, 0, req.file.buffer, req.body.categories.split(','), req.body.auName]
         pool.query(que,values).then(res1 => { //
           let queX = "update users set adslist=adslist || " + parseInt(res1.rows[0].ad_id) + " where userid=" + parseInt(tmpCookie.userid) + ";"
           pool.query(queX).then(resX=>{

@@ -1,22 +1,19 @@
-header(class="flex")
-    div(class = "userControls container d-flex bg-secondary p-2 mx-auto")
-        div(class="mx-1")
+header.container-fluid.bg-secondary
+    div(class="userControls container mx-1 d-flex py-2 align-items-center")
+        .mx-1
             button(type="button" class="btn btn-dark border" id="modalToggle" data-toggle="modal" data-target="#myModal" disabled) New Ad!
-        div()
+        div
             button(type="button" class="btn btn-dark border" id="uc__btnProfile" data-toggle="modal" data-target="#profileEditModal" disabled) Profile: None
-        div(class="mx-1")
-            span(class="uc__statusBadge badge bg-warning p-2") not logged in
-        div(class="col-8 p-0 controls text-white d-flex")
-            div(class="mr-2 loginControl")
-                div(class="logoutPart d-none")
-                    button(class="btn btn-warning btnLogout") logout
-                form(class="loginPart d-flex")
-                    input(type="text" class="small px-2 mx-1" id="logLogin" placeholder="login")
-                    input(type="text" class="small px-2 mx-1" id="logPW" placeholder="password")
-                    input(type="submit" class="btn btn-dark btn-sm btnLogin" value="login")
-            div(class="registerControl")
-                a(href="/reg" class="btnRegister btn btn-sm btn-dark" role="button") register
-                //button(class="btn btn-dark btnRegister") register
-                //register button must toggle the modal
-
-        //button(type="button" class="btn btn-warning border d-none" id="initNotices") Init notices table
+        .d-flex.ml-auto
+            div.mx-1
+                span(class="uc__statusBadge badge bg-warning p-2") not logged in
+            div(class="p-0 controls text-white d-flex")
+                div(class="mr-2 loginControl")
+                    .logoutPart.d-none
+                        button(class="btn btn-warning btnLogout") logout
+                    form(class="loginPart d-flex")
+                        input(type="text" class="small px-2 mx-1" id="logLogin" placeholder="login")
+                        input(type="text" class="small px-2 mx-1" id="logPW" placeholder="password")
+                        input(type="submit" class="btn btn-dark btn-sm btnLogin" value="login")
+                .registerControl
+                    a(href="/reg" class="btnRegister btn btn-sm btn-dark" role="button") register

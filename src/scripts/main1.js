@@ -5,7 +5,8 @@ let state = {
     login: false,
     data: {
         contacts: {}
-    }
+    },
+    newAd__TmpContacts: {}
 }
 ////UTILS PART
 //import hashCode from './utils'
@@ -44,8 +45,9 @@ function send(e){
     e.preventDefault();
     let formData = new FormData(document.querySelector('#theForm'))
     formData.append('auName', state.data.username)
+    formData.append('contactsObj', JSON.stringify(state.newAd__TmpContacts))
     let tmpTitle = $('#titleInp').val()
-    console.log(tmpTitle)
+    //console.log(tmpTitle)
     $.ajax({
         type: 'POST',
         url: 'new.bat',
@@ -53,8 +55,7 @@ function send(e){
         contentType: false,
         processData: false,
         success: function(data) {
-            //console.log('cp33' + data.ad_id)
-            console.log('succses')
+            console.log('new ad. Succses')
             state.data.adslist.push(parseInt(data.ad_id))
             state.data.adsListX.push({ad_id:parseInt(data.ad_id), hits:0, title: tmpTitle})
             tmpAdListText = `<span style="position:relative"><a href="adinfo?ad_id=${data.ad_id}" target="_blank" class="text-white" style="position: relative; text-decoration: none">
@@ -80,7 +81,6 @@ function upd(){
         success: function(data) {
             //console.log("ajax refresh success", data.length);
             data.forEach(x => {
-                //console.log(x)
                 let templ = document.querySelector('#noticeCardTemp')
                 let view = document.querySelector("#mainView")
                 let clone = document.importNode(templ.content, true);
@@ -88,7 +88,8 @@ function upd(){
                 clone.querySelectorAll("img")[0].src = "imgpls?imgId=" + x.ad_id
                 clone.querySelectorAll("h6")[0].textContent = x.title
                 clone.querySelectorAll("p")[0].textContent = x.text
-                clone.querySelectorAll("p")[1].textContent = x.contacts
+                Object.assign(clone.querySelectorAll(".nC__contactsView")[0].dataset, x.contacts);
+
                 clone.querySelectorAll(".authorLink")[0].setAttribute("href", "/user?id=" + x.author_id)
                 clone.querySelectorAll(".authorLink")[0].textContent = x.auname
                 clone.querySelectorAll(".hits")[0].textContent = x.hits
@@ -130,6 +131,9 @@ function stateLogin(){
     $('#modalToggle').prop('disabled', false)    
     if (state.data.contacts == null) {
         state.data.contacts = {}
+        state.newAd__TmpContacts = {}
+    } else {
+        state.newAd__TmpContacts = Object.assign({}, state.data.contacts);
     }
     $('.profileModalTitle').text(`User: ${state.data.username}(id:${state.data.userid})`)
     $('#userEdit__mailField').text(`Inner email: ${state.data.usermail}`)
@@ -138,11 +142,10 @@ function stateLogin(){
     $('#userEdit__dateField').text(`${dat[0]} ${dat[1].substring(0,5)}`)
     uEdit__refreshFromContactsObj()
     $('#userEdit__contactsView').find('.contactsRemoveBtn').hide()
-    //adlist 
-    /*let tmpAdListText = '' */
-    //show the list
-    //delete buttons
-    //editing maybe in future versions????
+    if ($('#userEdit__addContacts').hasClass('show')) {
+        $('#userEdit__addContacts').collapse('hide')
+        //$('#userEdit__contactsView').find('.contactsRemoveBtn').hide()
+    }
     let tmpAdListText = ''
     state.data.adsListX.forEach(ad=>{
         // console.log(ad.ad_id)
@@ -228,7 +231,7 @@ $( document ).ready(function() {
     $(".btnLogin").on("click", login)
     $(".btnLogout").on("click", logout)
     $('#myModal').on('shown.bs.modal', function () {
-        $('#textInp').trigger('focus')
+        $('#textInp').trigger('focus')        
     })
     $('#categoriesInp').tagsInput({
         'height':'48px',
@@ -240,6 +243,11 @@ $( document ).ready(function() {
         state.data = JSON.parse(getCookie("state"))
         stateLogin()
     }
+    //state.newAd__TmpContacts = Object.assign({}, state.data.contacts);
+
+    $('#myModal').on('show.bs.modal', function () {
+        newAd__refreshFromTmpContactsObj()
+    })
 })
 
 
@@ -267,7 +275,15 @@ function setGlobalInfo(e){
             $('.oldModalPic').attr('src', $(e.target.parentElement.parentElement).find('img').attr('src') )
             $('.oldModalTitle').text($(e.target.parentElement.parentElement).find('h6').text())
             $('.oldModalText').text($(e.target.parentElement.parentElement).find('.cardsText').text())
-            $('.oldModalContacts').text($(e.target.parentElement.parentElement).find('.cardsContacts').text())
+            //$('.oldModalContacts').text($(e.target.parentElement.parentElement).find('.cardsContacts').text())
+            let conts1 = $(e.target.parentElement.parentElement).find('.nC__contactsView')[0]
+            $('.oldModalContacts').empty()
+            $('.oldModalContacts').append('<div>contacts:</div>')
+            for (let key in conts1.dataset) {
+                let newCont = document.createElement("div")
+                newCont.textContent = `${key} : ${conts1.dataset[key]}`
+                $('.oldModalContacts').append(newCont)
+            }
             $('.oldModalAuthor').text($(e.target.parentElement.parentElement).find('.authorLink').text())
             $('.oldModalAuthor').attr("href", $(e.target.parentElement.parentElement).find('.authorLink').attr("href"))
             $('.oldModalHits').text($(e.target.parentElement.parentElement).find('.hits').text())
@@ -320,18 +336,10 @@ function uEdit__addToContactsObj(){
         userEdit__cProp.value = ''
         userEdit__cVal.value = ''
     }
-    //refresh the 
 }
 function uEdit__refreshFromContactsObj(){
     $('#userEdit__contactsView').empty()
-    
     for (let key in state.data.contacts) {
-        //console.log(key)
-        //key
-        //state.contactsObj[key]
-        /*span() contact 1 : lalala2
-        
-              input(type="button" class="btn btn-primary btn-sm contactsRemoveBtn" value="remove!") */
         $('#userEdit__contactsView').append(`<div>${key} : ${state.data.contacts[key]} <button data-key=${key} class='btn btn-danger btn-sm contactsRemoveBtn p-1' style='font-size:13px;line-height:1'><i class="fa fa-trash"></i></button></div>`)
     }
 }
@@ -340,15 +348,42 @@ function uEdit__removeSelf(key){
         delete state.data.contacts[key]
     }
 }
-
+function newAd__removeSelf(key){
+    if (typeof state.newAd__TmpContacts[key] != 'undefined'){
+        delete state.newAd__TmpContacts[key]
+    }
+}
+function newAd__refreshFromTmpContactsObj(){
+    $('#newAd__contactsView').empty()
+    for (let key in state.newAd__TmpContacts) {
+        $('#newAd__contactsView').append(`<div>${key} : ${state.newAd__TmpContacts[key]} <button data-key=${key} class='btn btn-danger btn-sm newAd__contactsRemoveBtn p-1' style='font-size:13px;line-height:1'><i data-key=${key} class="fa fa-trash"></i></button></div>`)
+    }
+}
+function newAd__addToContactsObj(){
+    if ((newAd__cProp.value.length>2) && (newAd__cVal.value.length>2)) {
+        state.newAd__TmpContacts[newAd__cProp.value] = newAd__cVal.value
+        newAd__cProp.value = ''
+        newAd__cVal.value = ''
+    }
+}
 $(document).on("click touch", "#userEdit__addToContactsObj", e =>{
     uEdit__addToContactsObj()
     uEdit__refreshFromContactsObj()
     $('#userEdit__cProp').focus()
 })
 $(document).on("click touch", ".contactsRemoveBtn", e =>{
-    uEdit__removeSelf(e.target.dataset.key)
+    uEdit__removeSelf(e.target.dataset.key) 
     uEdit__refreshFromContactsObj()
+})
+$(document).on("click touch", ".newAd__contactsRemoveBtn", e =>{
+    newAd__removeSelf(e.target.dataset.key)
+    newAd__refreshFromTmpContactsObj()
+    //there needs to be a temp object
+})
+$(document).on("click touch", "#newAd__addToContactsObj", e =>{
+    newAd__addToContactsObj()
+    newAd__refreshFromTmpContactsObj()
+    $('#newAd__cProp').focus()
 })
 $(document).on("click touch", "#userEdit__submit", e =>{
     //send to fucks?
